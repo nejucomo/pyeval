@@ -1,0 +1,76 @@
+#! /usr/bin/env python
+
+import sys, pprint, __builtin__
+
+
+def main(args = sys.argv[1:]):
+    expr, strs = args[0], args[1:]
+    scope = MagicScope(args = strs)
+    for (i, arg) in enumerate(strs):
+        scope['a%d' % i] = arg
+    result = eval(expr, {}, scope)
+    display(result)
+
+
+def display(obj):
+    if not hasattr(obj, 'next'):
+        obj = [obj]
+
+    for elem in obj:
+        print str(elem)
+
+
+
+class AutoImporter (object):
+    def __init__(self, name, parent = None):
+        self.name = name
+        self.parent = parent
+        mod = __import__(self.fullname)
+        for name in self.fullname.split('.')[1:]:
+            mod = getattr(mod, name)
+        self.mod = mod
+
+    @property
+    def fullname(self):
+        if self.parent:
+            return '%s.%s' % (self.parent.fullname, self.name)
+        else:
+            return self.name
+
+    def __getattr__(self, name):
+        try:
+            return getattr(self.mod, name)
+        except AttributeError:
+            return AutoImporter(name, self)
+
+
+
+class MagicScope (dict):
+    def __init__(self, **kw):
+        dict.__init__(self, vars(__builtin__))
+        self.update(kw)
+
+    def __getitem__(self, key):
+        try:
+            return dict.__getitem__(self, key)
+        except KeyError:
+            try:
+                method = getattr(self, 'magic_' + key)
+            except AttributeError:
+                return AutoImporter(key)
+
+            return method()
+
+    def magic_pp(self):
+        return pprint.pprint
+
+    def magic_ri(self):
+        self['ri'] = ri = sys.stdin.read()
+        return ri
+
+    def magic_i(self):
+        return self['ri'].strip()
+
+
+if __name__ == '__main__':
+    main()
