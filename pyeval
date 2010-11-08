@@ -30,10 +30,17 @@ def main(args = sys.argv[1:]):
 
 
 def display(obj):
-    if not hasattr(obj, 'next'):
-        obj = [obj]
+    if obj is None:
+        return
 
-    for elem in obj:
+    it = [obj]
+    if type(obj) not in (str, unicode):
+        try:
+            it = iter(obj)
+        except TypeError:
+            pass
+
+    for elem in it:
         print str(elem)
 
 
@@ -81,8 +88,8 @@ class MagicScope (dict):
 
             return method()
 
-    def magic_pp(self):
-        return pprint.pprint
+    def magic_pf(self):
+        return pprint.pformat
 
     def magic_ri(self):
         self['ri'] = ri = sys.stdin.read()
