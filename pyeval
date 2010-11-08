@@ -40,23 +40,26 @@ def display(obj):
 
 class AutoImporter (object):
     def __init__(self, name, parent = None):
-        self.name = name
-        self.parent = parent
-        mod = __import__(self.fullname)
-        for name in self.fullname.split('.')[1:]:
+        self._ai_name = name
+        self._ai_parent = parent
+        mod = __import__(self._ai_fullname)
+        for name in self._ai_fullname.split('.')[1:]:
             mod = getattr(mod, name)
-        self.mod = mod
+        self._ai_mod = mod
 
     @property
-    def fullname(self):
-        if self.parent:
-            return '%s.%s' % (self.parent.fullname, self.name)
+    def _ai_fullname(self):
+        if self._ai_parent:
+            return '%s.%s' % (self._ai_parent._ai_fullname, self._ai_name)
         else:
-            return self.name
+            return self._ai_name
+
+    def __repr__(self):
+        return repr(self._ai_mod)
 
     def __getattr__(self, name):
         try:
-            return getattr(self.mod, name)
+            return getattr(self._ai_mod, name)
         except AttributeError:
             return AutoImporter(name, self)
 
