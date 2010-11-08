@@ -1,4 +1,4 @@
-MANIFEST
+^MANIFEST$
 ^build/
 ^dist/
 ^pyeval-[0-9.]+/
