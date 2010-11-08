@@ -22,9 +22,17 @@ import sys, pprint, __builtin__
 
 def main(args = sys.argv[1:]):
     expr, strs = args[0], args[1:]
-    scope = MagicScope(args = strs)
+
+    scope = MagicScope(
+        args = strs,
+        help = HelpWrapper(),
+        pf = pprint.pformat)
+
+    # Some more shortcuts:
     for (i, arg) in enumerate(strs):
         scope['a%d' % i] = arg
+
+    # Get the result:
     result = eval(expr, {}, scope)
     display(result)
 
@@ -88,15 +96,29 @@ class MagicScope (dict):
 
             return method()
 
-    def magic_pf(self):
-        return pprint.pformat
-
     def magic_ri(self):
         self['ri'] = ri = sys.stdin.read()
         return ri
 
     def magic_i(self):
         return self['ri'].strip()
+
+    def magic_rlines(self):
+        return sys.stdin.readlines()
+
+    def magic_lines(self):
+        for l in self['rlines']:
+            yield l.strip()
+
+
+class HelpWrapper (object):
+    def __repr__(self):
+        return repr(help)
+
+    def __call__(self, obj=None):
+        if isinstance(obj, AutoImporter):
+            obj = obj._ai_mod
+        help(obj)
 
 
 if __name__ == '__main__':
