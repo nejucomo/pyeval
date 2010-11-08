@@ -8,6 +8,6 @@ setup(name='pyeval',
       author='Nathan Wilcox',
       author_email='nejucomo@gmail.com',
       license='GPLv3',
-      url='https://bitbucket.org/nejucomo/pyeval/',
+      url='https://bitbucket.org/nejucomo/pyeval/wiki/Home',
       scripts=['pyeval'],
      )
