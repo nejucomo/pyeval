@@ -26,6 +26,7 @@ def main(args = sys.argv[1:]):
     scope = MagicScope(
         args = strs,
         help = HelpWrapper(),
+        srcpath = get_source_path,
         pf = pprint.pformat)
 
     # Some more shortcuts:
@@ -50,7 +51,6 @@ def display(obj):
 
     for elem in it:
         print str(elem)
-
 
 
 class AutoImporter (object):
@@ -119,6 +119,17 @@ class HelpWrapper (object):
         if isinstance(obj, AutoImporter):
             obj = obj._ai_mod
         help(obj)
+
+
+def get_source_path(mod):
+    if isinstance(mod, AutoImporter):
+        mod = mod._ai_mod
+    path = mod.__file__
+    if path.endswith('.pyc'):
+        path = path[:-1]
+    assert path.endswith('.py'), `path`
+    return path
+
 
 
 if __name__ == '__main__':
