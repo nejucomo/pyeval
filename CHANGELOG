@@ -1,0 +1,6 @@
+2012-05-30 - Version '0.1.6' - As of: 573158ff1db2
+
+  - Changed output to unicode.
+  - If the standard python encoding is available use that.
+  - If not, try to parse LC_CTYPE and use that.
+  
