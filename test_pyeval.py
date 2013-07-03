@@ -1,15 +1,16 @@
 #! /usr/bin/env python
 
 import sys
-from types import ModuleType
 import unittest
+from types import ModuleType
+from pprint import pformat
 from cStringIO import StringIO
 
 import pyeval
 
 
 
-class PyevalTests (unittest.TestCase):
+class pyevalTests (unittest.TestCase):
     """High-level tests of pyeval.pyeval."""
 
     def test_autoimportTopLevel(self):
@@ -19,6 +20,33 @@ class PyevalTests (unittest.TestCase):
     def test_autoimportSubmodule(self):
         ai = pyeval.pyeval('faketestpackage.faketestmodule')
         self.assertIs(ModuleType, type(ai._ai_mod))
+
+
+
+class displayTests (unittest.TestCase):
+    """display should behave like standard sys.displayhook, except pformat is used."""
+
+    def test_displayNone(self):
+        fio = FakeIO()
+
+        with fio:
+            pyeval.display(None)
+
+        self.assertEqual('', fio.fakeout.getvalue())
+        self.assertEqual('', fio.fakeerr.getvalue())
+
+    def test_displayValues(self):
+        for value in [42, "banana", range(1024), vars()]:
+            expected = pformat(value) + '\n'
+
+            fio = FakeIO()
+
+            with fio:
+                pyeval.display(value)
+
+            self.assertEqual(expected, fio.fakeout.getvalue())
+            self.assertEqual('', fio.fakeerr.getvalue())
+
 
 
 
@@ -71,7 +99,7 @@ class MagicScopeTests (unittest.TestCase):
 
 
 class FakeIO (object):
-    def __init__(self, inbytes):
+    def __init__(self, inbytes=''):
         self.inbytes = inbytes
 
     def __enter__(self):
