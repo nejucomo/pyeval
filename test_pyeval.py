@@ -89,14 +89,17 @@ class MagicScopeTests (unittest.TestCase):
         self.scope = pyeval.MagicScope()
 
     def test_inputCaching(self):
-        rawin = 'foo\n\n'
+        rawin = 'foo\nbar\n\n'
         stripin = rawin.strip()
+        rlines = rawin.split('\n')
+        lines = [ l.strip() for l in rlines ]
 
         with FakeIO(rawin):
-            self.assertEqual(rawin, self.scope['ri'])
-            self.assertEqual(stripin, self.scope['i'])
-            self.assertEqual(rawin, self.scope['ri'])
-            self.assertEqual(stripin, self.scope['i'])
+            for i in range(2):
+                self.assertEqual(rawin, self.scope['ri'])
+                self.assertEqual(stripin, self.scope['i'])
+                self.assertEqual(rlines, self.scope['rlines'])
+                self.assertEqual(lines, self.scope['lines'])
 
     def test_AutoImporterHook(self):
         # Pick a module that is not imported by default:
