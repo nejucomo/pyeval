@@ -56,19 +56,8 @@ def pyeval(expr, *args):
 
 
 def display(obj):
-    if obj is None:
-        return
-
-    it = [obj]
-    if type(obj) not in (str, unicode):
-        try:
-            it = iter(obj)
-        except TypeError:
-            pass
-
-    for elem in it:
-        print unicode(elem).encode(Encoding)
-
+    if obj is not None:
+        pprint.pprint(obj)
 
 
 def import_last(modpath):
