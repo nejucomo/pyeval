@@ -95,9 +95,11 @@ class MagicScope (dict):
 
     # Explicit magic interface:
     def registerMagic(self, f, name=None):
+
         if name is None:
             name = f.__name__
 
+        self.pop(name, None) # Override any previous definitions.
         self._magic[name] = f
 
 
@@ -119,17 +121,18 @@ class MagicScope (dict):
         return sorted( [ (k, f.__doc__) for (k, f) in self._magic.iteritems() ] )
 
 
+    # Scope interface:
     def __getitem__(self, key):
+        method = self._magic.get(key)
+
         try:
             return dict.__getitem__(self, key)
         except KeyError:
-            try:
-                method = self._magic[key]
-            except KeyError:
+            if method is None:
                 return self._fallthrough(key)
-
-            value = self[key] = method()
-            return value
+            else:
+                value = self[key] = method()
+                return value
 
 
 
