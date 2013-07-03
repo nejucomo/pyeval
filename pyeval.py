@@ -16,6 +16,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 Usage = """
+Usage: pyeval EXPR [ARG...]
+
 FIXME not yet written
 """
 
@@ -33,7 +35,9 @@ def main(args = sys.argv[1:]):
 
 
 def pyeval(expr, *args):
-    return eval(expr, {}, makeStandardMagicScope(args))
+    scope = MagicScope()
+    scope.registerArgsMagic(args)
+    return eval(expr, {}, scope)
 
 
 def display(obj):
@@ -48,50 +52,84 @@ def import_last(modpath):
     return mod
 
 
-def makeStandardMagicScope(args):
-
-    scope = MagicScope(
-        args = args,
-        help = HelpBrowser(),
-        pf = pprint.pformat)
-
-    # Some more shortcuts:
-    for (i, arg) in enumerate(args):
-        scope['a%d' % i] = arg
-
-    return scope
-
-
-
 
 class MagicScope (dict):
-    def __init__(self, **kw):
+    def __init__(self, fallthrough=lambda key: AutoImporter(import_last(key))):
+
+        self._fallthrough = fallthrough
+        self._magic = {}
+
         dict.__init__(self, vars(__builtin__))
-        self.update(kw)
+
+        # Standard magic:
+        @self.registerMagic
+        def help():
+            """The help browser."""
+            return HelpBrowser()
+
+        @self.registerMagic
+        def ri():
+            """The raw standard input as a string.  The first access calls sys.stdin.read()"""
+            return sys.stdin.read()
+
+        @self.registerMagic
+        def i():
+            """The stripped standard input string.  Defined as 'ri.strip()'"""
+            return self['ri'].strip()
+
+        @self.registerMagic
+        def rlines():
+            """The list of raw standard input lines.  Defined as 'ri.split("\n")'"""
+            return self['ri'].split('\n')
+
+        @self.registerMagic
+        def lines():
+            """The list of stripped standard input lines.  Defined as '[ l.strip() for l in self['rlines'] ]'"""
+            return [ l.strip() for l in self['rlines'] ]
+
+        @self.registerMagic
+        def pf():
+            """An alias to pprint.pformat."""
+            return pprint.pformat
+
+
+    # Explicit magic interface:
+    def registerMagic(self, f, name=None):
+        if name is None:
+            name = f.__name__
+
+        self._magic[name] = f
+
+
+    def registerArgsMagic(self, argStrs):
+        @self.registerMagic
+        def args():
+            """The list of ARG strings after EXPR."""
+            return argStrs
+
+        for (i, arg) in enumerate(argStrs):
+            def argN(cachedArg=arg):
+                """A positional ARG given after EXPR."""
+                return cachedArg
+
+            self.registerMagic(argN, 'a' + str(i))
+
+
+    def getMagicDocs(self):
+        return sorted( [ (k, f.__doc__) for (k, f) in self._magic.iteritems() ] )
+
 
     def __getitem__(self, key):
         try:
             return dict.__getitem__(self, key)
         except KeyError:
             try:
-                method = getattr(self, 'magic_' + key)
-            except AttributeError:
-                return AutoImporter(import_last(key))
+                method = self._magic[key]
+            except KeyError:
+                return self._fallthrough(key)
 
-            return method()
-
-    def magic_ri(self):
-        self['ri'] = ri = sys.stdin.read()
-        return ri
-
-    def magic_i(self):
-        return self['ri'].strip()
-
-    def magic_rlines(self):
-        return self['ri'].split('\n')
-
-    def magic_lines(self):
-        return [ l.strip() for l in self['rlines'] ]
+            value = self[key] = method()
+            return value
 
 
 

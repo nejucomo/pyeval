@@ -53,10 +53,11 @@ class displayTests (unittest.TestCase):
 
 class MagicScopeTests (unittest.TestCase):
     def setUp(self):
-        self.args = [self.a0, self.a1] = ['foo', 'bar']
-        self.pf = pprint.pformat
+        self.caught = []
+        self.scope = pyeval.MagicScope(self.caught.append)
 
-        self.scope = pyeval.makeStandardMagicScope(self.args)
+        self.args = [self.a0, self.a1] = ['foo', 'bar']
+        self.scope.registerArgsMagic(self.args)
 
     def test_inputCaching(self):
         rawin = 'foo\nbar\n\n'
@@ -76,9 +77,45 @@ class MagicScopeTests (unittest.TestCase):
                 self.assertEqual(self.a0, self.scope['a0'])
                 self.assertEqual(self.a1, self.scope['a1'])
 
-    def test_AutoImporterHook(self):
-        # Pick a module that is not imported by default:
-        self.assertIsInstance(self.scope['BaseHTTPServer'], pyeval.AutoImporter)
+    def test_fallthrough(self):
+        key = '6ff25ffc'
+        x = self.scope[key]
+        self.assertIsNone(x)
+        self.assertEqual([key], self.caught)
+
+    def test_registerMagic(self):
+
+        callCount = [0]
+
+        @self.scope.registerMagic
+        def x():
+            callCount[0] += 1
+            return callCount[0]
+
+        self.assertEqual(1, self.scope['x'])
+        self.assertEqual(1, self.scope['x'])
+        self.assertEqual(1, self.scope['x'])
+
+    def test_getMagicDocs(self):
+        def unwrap(pair):
+            (k, v) = pair
+            self.assertIsInstance(k, str)
+            self.assertIsInstance(v, str)
+            return k
+
+        expected = [
+            'a0',
+            'a1',
+            'args',
+            'help',
+            'i',
+            'lines',
+            'pf',
+            'ri',
+            'rlines',
+            ]
+
+        self.assertEqual(expected, map(unwrap, self.scope.getMagicDocs()))
 
 
 
