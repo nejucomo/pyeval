@@ -2,5 +2,7 @@
 ^build/
 ^dist/
 ^pyeval-[0-9.]+/
+^\.coverage
+^htmlcov/
 ^_trial_temp/
 ^.*\.pyc$
