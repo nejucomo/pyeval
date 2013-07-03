@@ -1,5 +1,3 @@
-#! /usr/bin/env python
-
 CopyrightInfo = '''
 Copyright 2010 Nathan Wilcox
 
@@ -145,6 +143,3 @@ def get_source_path(mod):
     return path
 
 
-
-if __name__ == '__main__':
-    main()
