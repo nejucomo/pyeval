@@ -13,7 +13,7 @@ class PyevalTests (unittest.TestCase):
 
     def test_autoimportTopLevel(self):
         import math
-        self.assertIs(math, pyeval.pyeval('math'))
+        self.assertIs(math, pyeval.pyeval('math')._ai_mod)
 
     def test_autoimportSubmodule(self):
         m = pyeval.pyeval('logging.handlers')
