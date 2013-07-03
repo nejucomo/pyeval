@@ -60,26 +60,25 @@ class DocTests (unittest.TestCase):
 
         for (topicname, topic) in [('help', hb)] + hb.topicsdict.items():
             for (expr, args, inputText, outlines) in self._parseEntries(repr(topic)):
-                if inputText is None:
-                    inputText = ''
+                try:
+                    if inputText is None:
+                        inputText = ''
 
-                expectedOut = '\n'.join(outlines) + '\n'
+                    expectedOut = '\n'.join(outlines) + '\n'
 
-                fio = FakeIO(inputText + '\n')
+                    fio = FakeIO(inputText + '\n')
 
-                with fio:
-                    try:
+                    with fio:
                         pyeval.main([expr] + args)
-                    except Exception, e:
-                        e.args += ('In topic %r' % (topicname,),
-                                   'In EXPR %r' % (expr,),
-                                   )
-                        raise
+                    if expectedOut != '...\n':
+                        self.assertEqual(expectedOut, fio.fakeout.getvalue())
 
-                if expectedOut != '...\n':
-                    self.assertEqual(expectedOut, fio.fakeout.getvalue())
-
-                self.assertEqual('', fio.fakeerr.getvalue())
+                    self.assertEqual('', fio.fakeerr.getvalue())
+                except Exception, e:
+                    e.args += ('In topic %r' % (topicname,),
+                               'In EXPR %r' % (expr,),
+                               )
+                    raise
 
 
 
