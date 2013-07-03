@@ -119,11 +119,10 @@ class MagicScope (dict):
         return self['ri'].strip()
 
     def magic_rlines(self):
-        return sys.stdin.readlines()
+        return self['ri'].split('\n')
 
     def magic_lines(self):
-        for l in self['rlines']:
-            yield l.strip()
+        return [ l.strip() for l in self['rlines'] ]
 
 
 class HelpWrapper (object):
