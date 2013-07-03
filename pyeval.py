@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-Usage = """
+Usage = '''
 Usage: pyeval EXPR [ARG...]
 
 Evaluate EXPR with the python interpreter.  Any other ARGs are available
@@ -33,21 +33,39 @@ nothing is displayed.
 There are "magic variables" whose result is only computed on the first
 dereference. For more detail, run:
 
-  $ pyeval 'help(MagicScope)'
+  $ pyeval 'help.MagicScope'
   ...
 
 Any reference which is not a standard builtin or a magic variable results
 in an AutoImporter instance, which the first example demonstrates by
 importing 'math'.  For more detail, run:
 
-  $ pyeval 'help(AutoImporter)'
+  $ pyeval 'help.AutoImporter'
   ...
 
 For more examples, run:
 
-  $ pyeval 'help(Examples)'
+  $ pyeval 'help.Examples'
   ...
-"""
+
+For more help topics, run:
+
+  $ pyeval 'help.Topics'
+  ...
+
+'''
+
+MagicScopeText = '''
+FIXME - write this
+'''
+
+AutoImporterText = '''
+FIXME - write this
+'''
+
+ExamplesText = '''
+FIXME - write this
+'''
 
 
 import __builtin__
@@ -204,18 +222,34 @@ class AutoImporter (object):
 
 
 
-class HelpBrowser (object):
+class HelpTopic (object):
+    def __init__(self, repr):
+        self._repr = repr
+
+    def __repr__(self):
+        return self._repr
+
+
+
+class HelpBrowser (HelpTopic):
+
+    # Topics:
+    MagicScope = HelpTopic(MagicScopeText)
+    AutoImporter = HelpTopic(AutoImporterText)
+    Examples = HelpTopic(ExamplesText)
+
+    Topics = HelpTopic(
+        'Topics: %s' % (', '.join(
+                [ 'help.%s' % (n,)
+                  for (n, v) in sorted(locals().items()) if isinstance(v, HelpTopic)
+                  ]),))
+
     def __init__(self, delegate=help):
         """The constructor allows dependency injection for unittests."""
         self._delegate = delegate
+        HelpTopic.__init__(self, Usage)
 
-    def __repr__(self):
-        return Usage
-
-    def __call__(self, obj=None):
-        if obj is None:
-            return self
-
+    def __call__(self, obj):
         if isinstance(obj, AutoImporter):
             obj = obj._ai_mod
 

@@ -210,10 +210,6 @@ class HelpBrowserTests (unittest.TestCase):
         self.assertEqual(pyeval.Usage, repr(self.help))
         self.assertEqual([], self.delegateCalls)
 
-    def test_noArgs(self):
-        self.assertEqual(pyeval.Usage, repr(self.help()))
-        self.assertEqual([], self.delegateCalls)
-
     def test_autoImporter(self):
         magic = pyeval.MagicScope()
         ai = magic['sys']
