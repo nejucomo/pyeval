@@ -28,21 +28,23 @@ import pprint
 from types import ModuleType
 
 
+def displayPretty(obj):
+    if obj is not None:
+        pprint.pprint(obj)
 
-def main(args = sys.argv[1:]):
+
+def main(args = sys.argv[1:], displayhook=displayPretty):
+    sys.displayhook = displayhook
+
     expr, strs = args[0], args[1:]
-    display(pyeval(expr, *strs))
+    result = pyeval(expr, *strs)
+    sys.displayhook(result)
 
 
 def pyeval(expr, *args):
     scope = MagicScope()
     scope.registerArgsMagic(args)
     return eval(expr, {}, scope)
-
-
-def display(obj):
-    if obj is not None:
-        pprint.pprint(obj)
 
 
 def import_last(modpath):

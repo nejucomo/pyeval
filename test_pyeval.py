@@ -5,8 +5,27 @@ import unittest
 from types import ModuleType
 import pprint
 from cStringIO import StringIO
+import math
 
 import pyeval
+
+
+
+class mainTests (unittest.TestCase):
+
+    def _test_main(self, expected, args):
+        displays = []
+        pyeval.main(args, displays.append)
+        self.assertEqual([expected], displays)
+
+    def test_a1(self):
+        self._test_main('B', ['a1', 'A', 'B', 'C'])
+
+    def test_42(self):
+        self._test_main(42, ['42', 'A', 'B', 'C'])
+
+    def test_math_pi(self):
+        self._test_main(math.pi, ['math.pi', 'A', 'B', 'C'])
 
 
 
@@ -23,14 +42,14 @@ class pyevalTests (unittest.TestCase):
 
 
 
-class displayTests (unittest.TestCase):
-    """display should behave like standard sys.displayhook, except pformat is used."""
+class displayPrettyTests (unittest.TestCase):
+    """displayPretty should behave like standard sys.displayhook, except pformat is used."""
 
     def test_displayNone(self):
         fio = FakeIO()
 
         with fio:
-            pyeval.display(None)
+            pyeval.displayPretty(None)
 
         self.assertEqual('', fio.fakeout.getvalue())
         self.assertEqual('', fio.fakeerr.getvalue())
@@ -44,7 +63,7 @@ class displayTests (unittest.TestCase):
             fio = FakeIO()
 
             with fio:
-                pyeval.display(value)
+                pyeval.displayPretty(value)
 
             self.assertEqual(expected, fio.fakeout.getvalue())
             self.assertEqual('', fio.fakeerr.getvalue())
