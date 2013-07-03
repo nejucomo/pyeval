@@ -58,7 +58,7 @@ class DocTests (unittest.TestCase):
 
         hb = pyeval.HelpBrowser()
 
-        for topic in [hb] + hb.topicsdict.values():
+        for (topicname, topic) in [('help', hb)] + hb.topicsdict.items():
             for (expr, args, inputText, outlines) in self._parseEntries(repr(topic)):
                 if inputText is None:
                     inputText = ''
@@ -68,7 +68,13 @@ class DocTests (unittest.TestCase):
                 fio = FakeIO(inputText + '\n')
 
                 with fio:
-                    pyeval.main([expr] + args)
+                    try:
+                        pyeval.main([expr] + args)
+                    except Exception, e:
+                        e.args += ('In topic %r' % (topicname,),
+                                   'In EXPR %r' % (expr,),
+                                   )
+                        raise
 
                 if expectedOut != '...\n':
                     self.assertEqual(expectedOut, fio.fakeout.getvalue())
