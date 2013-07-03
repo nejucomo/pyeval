@@ -2,3 +2,5 @@
 ^build/
 ^dist/
 ^pyeval-[0-9.]+/
+^_trial_temp/
+^.*\.pyc$
