@@ -106,7 +106,7 @@ of AutoImporter which proxies attribute access to the module.
 You can see this by inspecting the repr of a module expression:
 
   $ pyeval 'logging.config'
-  FIXME
+  <AutoImporter of <module '...'>>
 
 '''
 
@@ -254,7 +254,7 @@ class AutoImporter (object):
         return self._ai_mod.__name__
 
     def __repr__(self):
-        return '<%s@%016x %r>' % (self.__class__.__name__, id(self), self._ai_mod)
+        return '<%s of %r>' % (self.__class__.__name__, self._ai_mod)
 
     def __getattr__(self, name):
         try:

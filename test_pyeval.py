@@ -66,14 +66,18 @@ class DocTests (unittest.TestCase):
 
                     expectedOut = '\n'.join(outlines) + '\n'
 
+                    # Implement wildcard matches on "...":
+                    expectedPattern = re.escape(expectedOut)
+                    expectedRgx = re.compile(expectedPattern.replace(r'\.\.\.', '.*?'))
+
                     fio = FakeIO(inputText + '\n')
 
                     with fio:
                         pyeval.main([expr] + args)
-                    if expectedOut != '...\n':
-                        self.assertEqual(expectedOut, fio.fakeout.getvalue())
 
+                    self.assertRegexpMatches(fio.fakeout.getvalue(), expectedRgx)
                     self.assertEqual('', fio.fakeerr.getvalue())
+
                 except Exception, e:
                     e.args += ('In topic %r' % (topicname,),
                                'In EXPR %r' % (expr,),
