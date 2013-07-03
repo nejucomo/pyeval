@@ -16,9 +16,9 @@ class PyevalTests (unittest.TestCase):
         self.assertIs(math, pyeval.pyeval('math')._ai_mod)
 
     def test_autoimportSubmodule(self):
-        m = pyeval.pyeval('logging.handlers')
+        ai = pyeval.pyeval('logging.handlers')
         from logging import handlers
-        self.assertIs(handlers, m)
+        self.assertIs(handlers, ai._ai_mod)
 
 
 
@@ -29,7 +29,7 @@ class AutoImporterTests (unittest.TestCase):
         from logging import handlers
         self.handlers = handlers
 
-        self.parent = pyeval.AutoImporter('logging')
+        self.parent = pyeval.AutoImporter(pyeval.import_last('logging'))
         self.child = self.parent.handlers
 
     def test__ai_mod(self):
@@ -38,11 +38,7 @@ class AutoImporterTests (unittest.TestCase):
 
     def test__ai_parent(self):
         self.assertIs(None, self.parent._ai_parent)
-        self.assertIs(self.logging, self.child._ai_parent)
-
-    def test__ai_name(self):
-        self.assertEqual('logging', self.parent._ai_name)
-        self.assertEqual('handlers', self.child._ai_name)
+        self.assertIs(self.parent, self.child._ai_parent)
 
     def test__ai_fullname(self):
         self.assertEqual('logging', self.parent._ai_fullname)

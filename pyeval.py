@@ -17,8 +17,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-import sys, pprint, __builtin__
-
+import __builtin__
+import sys
+import pprint
+from types import ModuleType
 import os
 
 # NOTE: I do not know how well this will work in practice:
@@ -68,30 +70,39 @@ def display(obj):
         print unicode(elem).encode(Encoding)
 
 
+
+def import_last(modpath):
+    mod = __import__(modpath)
+    for name in modpath.split('.')[1:]:
+        mod = getattr(mod, name)
+    return mod
+
+
+
 class AutoImporter (object):
-    def __init__(self, name, parent = None):
-        self._ai_name = name
-        self._ai_parent = parent
-        mod = __import__(self._ai_fullname)
-        for name in self._ai_fullname.split('.')[1:]:
-            mod = getattr(mod, name)
+    def __init__(self, mod, parent=None):
+        assert type(mod) is ModuleType, `mod`
+
         self._ai_mod = mod
+        self._ai_parent = parent
 
     @property
     def _ai_fullname(self):
-        if self._ai_parent:
-            return '%s.%s' % (self._ai_parent._ai_fullname, self._ai_name)
-        else:
-            return self._ai_name
+        return self._ai_mod.__name__
 
     def __repr__(self):
-        return repr(self._ai_mod)
+        return '<%s@%08x %r>' % (self.__class__.__name__, id(self), self._ai_mod)
 
     def __getattr__(self, name):
         try:
-            return getattr(self._ai_mod, name)
+            x = getattr(self._ai_mod, name)
         except AttributeError:
-            return AutoImporter(name, self)
+            x = import_last(self._ai_fullname + '.' + name)
+
+        if type(x) is ModuleType:
+            return AutoImporter(x, self)
+        else:
+            return x
 
 
 
@@ -107,7 +118,7 @@ class MagicScope (dict):
             try:
                 method = getattr(self, 'magic_' + key)
             except AttributeError:
-                return AutoImporter(key)
+                return AutoImporter(import_last(key))
 
             return method()
 
