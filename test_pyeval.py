@@ -107,6 +107,29 @@ class MagicScopeTests (unittest.TestCase):
 
 
 
+class HelpBrowserTests (unittest.TestCase):
+    def setUp(self):
+        self.delegateCalls = []
+        self.help = pyeval.HelpBrowser(self.delegateCalls.append)
+
+    def test___repr__(self):
+        self.assertEqual(pyeval.Usage, repr(self.help))
+        self.assertEqual([], self.delegateCalls)
+
+    def test_noArgs(self):
+        self.assertEqual(pyeval.Usage, repr(self.help()))
+        self.assertEqual([], self.delegateCalls)
+
+    def test_autoImporter(self):
+        magic = pyeval.MagicScope()
+        ai = magic['sys']
+        self.assertIsInstance(ai, pyeval.AutoImporter)
+        self.help(ai)
+        self.assertEqual([sys], self.delegateCalls)
+
+
+
+
 class FakeIO (object):
     def __init__(self, inbytes=''):
         self.inbytes = inbytes

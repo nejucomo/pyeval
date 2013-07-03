@@ -15,6 +15,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
+Usage = """
+FIXME not yet written
+"""
+
+
 import __builtin__
 import sys
 import pprint
@@ -42,7 +47,7 @@ def pyeval(expr, *args):
 
     scope = MagicScope(
         args = args,
-        help = HelpWrapper(),
+        help = HelpBrowser(),
         srcpath = get_source_path,
         pf = pprint.pformat)
 
@@ -123,14 +128,22 @@ class MagicScope (dict):
         return [ l.strip() for l in self['rlines'] ]
 
 
-class HelpWrapper (object):
+class HelpBrowser (object):
+    def __init__(self, delegate=help):
+        """The constructor allows dependency injection for unittests."""
+        self._delegate = delegate
+
     def __repr__(self):
-        return repr(help)
+        return Usage
 
     def __call__(self, obj=None):
+        if obj is None:
+            return self
+
         if isinstance(obj, AutoImporter):
             obj = obj._ai_mod
-        help(obj)
+
+        self._delegate(obj)
 
 
 def get_source_path(mod):
