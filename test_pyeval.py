@@ -51,6 +51,29 @@ class displayTests (unittest.TestCase):
 
 
 
+class MagicScopeTests (unittest.TestCase):
+    def setUp(self):
+        self.scope = pyeval.MagicScope()
+
+    def test_inputCaching(self):
+        rawin = 'foo\nbar\n\n'
+        stripin = rawin.strip()
+        rlines = rawin.split('\n')
+        lines = [ l.strip() for l in rlines ]
+
+        with FakeIO(rawin):
+            for i in range(2):
+                self.assertEqual(rawin, self.scope['ri'])
+                self.assertEqual(stripin, self.scope['i'])
+                self.assertEqual(rlines, self.scope['rlines'])
+                self.assertEqual(lines, self.scope['lines'])
+
+    def test_AutoImporterHook(self):
+        # Pick a module that is not imported by default:
+        self.assertIsInstance(self.scope['BaseHTTPServer'], pyeval.AutoImporter)
+
+
+
 class AutoImporterTests (unittest.TestCase):
     def setUp(self):
         import logging
@@ -78,32 +101,18 @@ class AutoImporterTests (unittest.TestCase):
         self.assertEqual('logging', self.parent._ai_fullname)
         self.assertEqual('logging.handlers', self.child._ai_fullname)
 
+    def test__ai_path(self):
+        def getsrc(m):
+            path = m.__file__
+            assert path.endswith('.pyc')
+            return path[:-1]
+
+        self.assertEqual(getsrc(self.logging), self.parent._ai_path)
+        self.assertEqual(getsrc(self.logging.handlers), self.child._ai_path)
+
     def test_attr(self):
         self.assertIs(self.logging.basicConfig, self.parent.basicConfig)
         self.assertIs(self.handlers.MemoryHandler, self.child.MemoryHandler)
-
-
-
-class MagicScopeTests (unittest.TestCase):
-    def setUp(self):
-        self.scope = pyeval.MagicScope()
-
-    def test_inputCaching(self):
-        rawin = 'foo\nbar\n\n'
-        stripin = rawin.strip()
-        rlines = rawin.split('\n')
-        lines = [ l.strip() for l in rlines ]
-
-        with FakeIO(rawin):
-            for i in range(2):
-                self.assertEqual(rawin, self.scope['ri'])
-                self.assertEqual(stripin, self.scope['i'])
-                self.assertEqual(rlines, self.scope['rlines'])
-                self.assertEqual(lines, self.scope['lines'])
-
-    def test_AutoImporterHook(self):
-        # Pick a module that is not imported by default:
-        self.assertIsInstance(self.scope['BaseHTTPServer'], pyeval.AutoImporter)
 
 
 

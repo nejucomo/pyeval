@@ -37,7 +37,6 @@ def pyeval(expr, *args):
     scope = MagicScope(
         args = args,
         help = HelpBrowser(),
-        srcpath = get_source_path,
         pf = pprint.pformat)
 
     # Some more shortcuts:
@@ -57,33 +56,6 @@ def import_last(modpath):
     for name in modpath.split('.')[1:]:
         mod = getattr(mod, name)
     return mod
-
-
-
-class AutoImporter (object):
-    def __init__(self, mod, parent=None):
-        assert type(mod) is ModuleType, `mod`
-
-        self._ai_mod = mod
-        self._ai_parent = parent
-
-    @property
-    def _ai_fullname(self):
-        return self._ai_mod.__name__
-
-    def __repr__(self):
-        return '<%s@%016x %r>' % (self.__class__.__name__, id(self), self._ai_mod)
-
-    def __getattr__(self, name):
-        try:
-            x = getattr(self._ai_mod, name)
-        except AttributeError:
-            x = import_last(self._ai_fullname + '.' + name)
-
-        if type(x) is ModuleType:
-            return AutoImporter(x, self)
-        else:
-            return x
 
 
 
@@ -117,6 +89,45 @@ class MagicScope (dict):
         return [ l.strip() for l in self['rlines'] ]
 
 
+
+class AutoImporter (object):
+    def __init__(self, mod, parent=None):
+        assert type(mod) is ModuleType, `mod`
+
+        self._ai_mod = mod
+        self._ai_parent = parent
+
+        try:
+            path = mod.__file__
+        except AttributeError:
+            self._ai_path = None
+        else:
+            if path.endswith('.pyc'):
+                path = path[:-1]
+
+            self._ai_path = path
+
+
+    @property
+    def _ai_fullname(self):
+        return self._ai_mod.__name__
+
+    def __repr__(self):
+        return '<%s@%016x %r>' % (self.__class__.__name__, id(self), self._ai_mod)
+
+    def __getattr__(self, name):
+        try:
+            x = getattr(self._ai_mod, name)
+        except AttributeError:
+            x = import_last(self._ai_fullname + '.' + name)
+
+        if type(x) is ModuleType:
+            return AutoImporter(x, self)
+        else:
+            return x
+
+
+
 class HelpBrowser (object):
     def __init__(self, delegate=help):
         """The constructor allows dependency injection for unittests."""
@@ -133,15 +144,5 @@ class HelpBrowser (object):
             obj = obj._ai_mod
 
         self._delegate(obj)
-
-
-def get_source_path(mod):
-    if isinstance(mod, AutoImporter):
-        mod = mod._ai_mod
-    path = mod.__file__
-    if path.endswith('.pyc'):
-        path = path[:-1]
-    assert path.endswith('.py'), `path`
-    return path
 
 
