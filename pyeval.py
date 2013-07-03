@@ -34,16 +34,19 @@ There are "magic variables" whose result is only computed on the first
 dereference. For more detail, run:
 
   $ pyeval 'help(MagicScope)'
+  ...
 
 Any reference which is not a standard builtin or a magic variable results
 in an AutoImporter instance, which the first example demonstrates by
 importing 'math'.  For more detail, run:
 
   $ pyeval 'help(AutoImporter)'
+  ...
 
 For more examples, run:
 
   $ pyeval 'help(Examples)'
+  ...
 """
 
 

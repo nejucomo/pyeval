@@ -59,7 +59,9 @@ class DocTests (unittest.TestCase):
             with fio:
                 pyeval.main([expr] + args)
 
-            self.assertEqual(expectedOut, fio.fakeout.getvalue())
+            if expectedOut != '...\n':
+                self.assertEqual(expectedOut, fio.fakeout.getvalue())
+
             self.assertEqual('', fio.fakeerr.getvalue())
 
 
@@ -151,25 +153,9 @@ class MagicScopeTests (unittest.TestCase):
         self.assertEqual(1, self.scope['x'])
 
     def test_getMagicDocs(self):
-        def unwrap(pair):
-            (k, v) = pair
+        for (k, v) in self.scope.getMagicDocs():
             self.assertIsInstance(k, str)
             self.assertIsInstance(v, str)
-            return k
-
-        expected = [
-            'a0',
-            'a1',
-            'args',
-            'help',
-            'i',
-            'lines',
-            'pf',
-            'ri',
-            'rlines',
-            ]
-
-        self.assertEqual(expected, map(unwrap, self.scope.getMagicDocs()))
 
 
 
