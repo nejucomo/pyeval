@@ -3,7 +3,7 @@
 import sys
 import unittest
 from types import ModuleType
-from pprint import pformat
+from pprint import pprint
 from cStringIO import StringIO
 
 import pyeval
@@ -37,7 +37,9 @@ class displayTests (unittest.TestCase):
 
     def test_displayValues(self):
         for value in [42, "banana", range(1024), vars()]:
-            expected = pformat(value) + '\n'
+            f = StringIO()
+            pprint(value, f)
+            expected = f.getvalue()
 
             fio = FakeIO()
 
