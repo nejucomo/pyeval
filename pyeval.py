@@ -262,23 +262,23 @@ class HelpBrowser (HelpTopic):
         """The constructor allows dependency injection for unittests."""
         self._delegate = delegate
 
-        self.topics = {
+        self.topicsdict = {
             'MagicScope': HelpTopic(MagicScopeText),
             'AutoImporter': HelpTopic(AutoImporterText),
             'examples': HelpTopic(ExamplesText),
             }
 
         # Meta Topics is a list of Topics:
-        topickeys = sorted(self.topics.keys())
+        topickeys = sorted(self.topicsdict.keys())
         topicnames = [ '* help.%s' % (n,) for n in topickeys ]
         topicnames.insert(0, '* help')
         topics = '\n'.join(topicnames)
 
-        self.topics['topics'] = HelpTopic('Topics:\n\n%s\n\n' % (topics,))
+        self.topicsdict['topics'] = HelpTopic('Topics:\n\n%s\n\n' % (topics,))
 
         HelpTopic.__init__(self, Usage)
 
-        for (name, topic) in self.topics.iteritems():
+        for (name, topic) in self.topicsdict.iteritems():
             setattr(self, name, topic)
 
 

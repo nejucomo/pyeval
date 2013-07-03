@@ -33,36 +33,47 @@ class mainTests (unittest.TestCase):
 class DocTests (unittest.TestCase):
 
     IndentRgx = re.compile(r'^  .*?$', re.MULTILINE)
-    InvocationRgx = re.compile(r"^  \$ pyeval '(.*?)' ?(.*?)$")
+    InvocationRgx = re.compile(r"^  \$ (echo '(?P<INPUT>.*?)' \| )?pyeval '(?P<EXPR>.*?)' ?(?P<ARGS>.*?)$")
+
 
     def _parseEntries(self, text):
         entry = None
         for m in self.IndentRgx.finditer(text):
-            m2 = self.InvocationRgx.match(m.group(0))
+            match = m.group(0)
+            m2 = self.InvocationRgx.match(match)
             if m2 is None:
-                entry[2].append(m.group(0).lstrip())
+                entry[3].append(m.group(0).lstrip())
             else:
                 if entry is not None:
                     yield entry
 
-                args = m2.group(2).split()
-                entry = (m2.group(1), args, [])
+                args = m2.group('ARGS').split()
+                entry = (m2.group('EXPR'), args, m2.group('INPUT'), [])
 
         if entry is not None:
             yield entry
 
-    def test_Usage(self):
-        for (expr, args, outlines) in self._parseEntries(pyeval.Usage):
-            expectedOut = '\n'.join(outlines) + '\n'
 
-            fio = FakeIO()
-            with fio:
-                pyeval.main([expr] + args)
+    def test_docs(self):
 
-            if expectedOut != '...\n':
-                self.assertEqual(expectedOut, fio.fakeout.getvalue())
+        hb = pyeval.HelpBrowser()
 
-            self.assertEqual('', fio.fakeerr.getvalue())
+        for topic in [hb] + hb.topicsdict.values():
+            for (expr, args, inputText, outlines) in self._parseEntries(repr(topic)):
+                if inputText is None:
+                    inputText = ''
+
+                expectedOut = '\n'.join(outlines) + '\n'
+
+                fio = FakeIO(inputText + '\n')
+
+                with fio:
+                    pyeval.main([expr] + args)
+
+                if expectedOut != '...\n':
+                    self.assertEqual(expectedOut, fio.fakeout.getvalue())
+
+                self.assertEqual('', fio.fakeerr.getvalue())
 
 
 
