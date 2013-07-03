@@ -96,7 +96,18 @@ Magic Variables:
 '''
 
 AutoImporterText = '''
-FIXME - write this
+The AutoImporter class allows expressions to use modules directly with
+an implicit "import on demand" functionality.
+
+Unfortunately the implementation is not completely transparent:
+references to what look like python modules are actually to an instance
+of AutoImporter which proxies attribute access to the module.
+
+You can see this by inspecting the repr of a module expression:
+
+  $ pyeval 'logging.config'
+  FIXME
+
 '''
 
 ExamplesText = '''
@@ -281,7 +292,7 @@ class HelpBrowser (HelpTopic):
             'examples': HelpTopic(ExamplesText),
             }
 
-        magiclist = [ '%s\n  %s' % t for t in scope.getMagicDocs() ]
+        magiclist = [ '%s\n- %s' % t for t in scope.getMagicDocs() ]
         self.topicsdict['magic'] = HelpTopic(
             MagicVariablesTemplate % {
                 'MAGIC_VARS_HELP': '\n\n'.join(magiclist),
