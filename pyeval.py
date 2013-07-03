@@ -35,20 +35,22 @@ except ValueError:
 
 def main(args = sys.argv[1:]):
     expr, strs = args[0], args[1:]
+    display(pyeval(expr, *strs))
+
+
+def pyeval(expr, *args):
 
     scope = MagicScope(
-        args = strs,
+        args = args,
         help = HelpWrapper(),
         srcpath = get_source_path,
         pf = pprint.pformat)
 
     # Some more shortcuts:
-    for (i, arg) in enumerate(strs):
+    for (i, arg) in enumerate(args):
         scope['a%d' % i] = arg
 
-    # Get the result:
-    result = eval(expr, {}, scope)
-    display(result)
+    return eval(expr, {}, scope)
 
 
 def display(obj):

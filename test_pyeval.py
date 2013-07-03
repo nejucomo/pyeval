@@ -8,6 +8,20 @@ import pyeval
 
 
 
+class PyevalTests (unittest.TestCase):
+    """High-level tests of pyeval.pyeval."""
+
+    def test_autoimportTopLevel(self):
+        import math
+        self.assertIs(math, pyeval.pyeval('math'))
+
+    def test_autoimportSubmodule(self):
+        m = pyeval.pyeval('logging.handlers')
+        from logging import handlers
+        self.assertIs(handlers, m)
+
+
+
 class AutoImporterTests (unittest.TestCase):
     def setUp(self):
         import logging
