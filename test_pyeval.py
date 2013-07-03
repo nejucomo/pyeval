@@ -54,16 +54,9 @@ class displayTests (unittest.TestCase):
 class MagicScopeTests (unittest.TestCase):
     def setUp(self):
         self.args = [self.a0, self.a1] = ['foo', 'bar']
-        self.help = pyeval.HelpBrowser()
         self.pf = pprint.pformat
 
-        self.scope = pyeval.MagicScope(
-            help=self.help,
-            pf=self.pf,
-            args=self.args,
-            a0=self.a0,
-            a1=self.a1,
-            )
+        self.scope = pyeval.makeStandardMagicScope(self.args)
 
     def test_inputCaching(self):
         rawin = 'foo\nbar\n\n'
@@ -77,7 +70,7 @@ class MagicScopeTests (unittest.TestCase):
                 self.assertEqual(stripin, self.scope['i'])
                 self.assertEqual(rlines, self.scope['rlines'])
                 self.assertEqual(lines, self.scope['lines'])
-                self.assertEqual(self.help, self.scope['help'])
+                self.assertIsInstance(self.scope['help'], pyeval.HelpBrowser)
                 self.assertEqual(self.pf, self.scope['pf'])
                 self.assertEqual(self.args, self.scope['args'])
                 self.assertEqual(self.a0, self.scope['a0'])

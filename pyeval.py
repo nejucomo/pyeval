@@ -33,17 +33,7 @@ def main(args = sys.argv[1:]):
 
 
 def pyeval(expr, *args):
-
-    scope = MagicScope(
-        args = args,
-        help = HelpBrowser(),
-        pf = pprint.pformat)
-
-    # Some more shortcuts:
-    for (i, arg) in enumerate(args):
-        scope['a%d' % i] = arg
-
-    return eval(expr, {}, scope)
+    return eval(expr, {}, makeStandardMagicScope(args))
 
 
 def display(obj):
@@ -56,6 +46,21 @@ def import_last(modpath):
     for name in modpath.split('.')[1:]:
         mod = getattr(mod, name)
     return mod
+
+
+def makeStandardMagicScope(args):
+
+    scope = MagicScope(
+        args = args,
+        help = HelpBrowser(),
+        pf = pprint.pformat)
+
+    # Some more shortcuts:
+    for (i, arg) in enumerate(args):
+        scope['a%d' % i] = arg
+
+    return scope
+
 
 
 
