@@ -51,7 +51,6 @@ class displayTests (unittest.TestCase):
 
 
 
-
 class AutoImporterTests (unittest.TestCase):
     def setUp(self):
         import logging
@@ -61,6 +60,11 @@ class AutoImporterTests (unittest.TestCase):
 
         self.parent = pyeval.AutoImporter(pyeval.import_last('logging'))
         self.child = self.parent.handlers
+
+    def test___repr__(self):
+        r = repr(self.child)
+        self.assertNotEqual(-1, r.find('AutoImporter'))
+        self.assertNotEqual(-1, r.find('logging.handlers'))
 
     def test__ai_mod(self):
         self.assertIs(self.logging, self.parent._ai_mod)
