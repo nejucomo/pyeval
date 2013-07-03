@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 import sys
+from types import ModuleType
 import unittest
 from cStringIO import StringIO
 
@@ -16,9 +17,8 @@ class PyevalTests (unittest.TestCase):
         self.assertIs(math, pyeval.pyeval('math')._ai_mod)
 
     def test_autoimportSubmodule(self):
-        ai = pyeval.pyeval('logging.handlers')
-        from logging import handlers
-        self.assertIs(handlers, ai._ai_mod)
+        ai = pyeval.pyeval('faketestpackage.faketestmodule')
+        self.assertIs(ModuleType, type(ai._ai_mod))
 
 
 

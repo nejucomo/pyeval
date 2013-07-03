@@ -91,7 +91,7 @@ class AutoImporter (object):
         return self._ai_mod.__name__
 
     def __repr__(self):
-        return '<%s@%08x %r>' % (self.__class__.__name__, id(self), self._ai_mod)
+        return '<%s@%016x %r>' % (self.__class__.__name__, id(self), self._ai_mod)
 
     def __getattr__(self, name):
         try:
