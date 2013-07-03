@@ -79,9 +79,20 @@ in stdin:
 
 Magic variables have individual help documentation, see:
 
-  $ pyeval 'help.MagicVariables'
+  $ pyeval 'help.magic'
   ...
 
+'''
+
+MagicVariablesTemplate = '''
+For detail on the MagicScope, run:
+
+  $ pyeval 'help.MagicScope'
+  ...
+
+Magic Variables:
+
+%(MAGIC_VARS_HELP)s
 '''
 
 AutoImporterText = '''
@@ -138,7 +149,7 @@ class MagicScope (dict):
         @self.registerMagic
         def help():
             """The help browser."""
-            return HelpBrowser()
+            return HelpBrowser(self)
 
         @self.registerMagic
         def ri():
@@ -152,7 +163,7 @@ class MagicScope (dict):
 
         @self.registerMagic
         def rlines():
-            """The list of raw standard input lines.  Defined as 'ri.split("\n")'"""
+            """The list of raw standard input lines.  Defined as 'ri.split("\\n")'"""
             return self['ri'].split('\n')
 
         @self.registerMagic
@@ -258,8 +269,10 @@ class HelpTopic (object):
 
 class HelpBrowser (HelpTopic):
 
-    def __init__(self, delegate=help):
+    def __init__(self, scope, delegate=help):
         """The constructor allows dependency injection for unittests."""
+        HelpTopic.__init__(self, Usage)
+
         self._delegate = delegate
 
         self.topicsdict = {
@@ -268,15 +281,19 @@ class HelpBrowser (HelpTopic):
             'examples': HelpTopic(ExamplesText),
             }
 
+        magiclist = [ '%s\n  %s' % t for t in scope.getMagicDocs() ]
+        self.topicsdict['magic'] = HelpTopic(
+            MagicVariablesTemplate % {
+                'MAGIC_VARS_HELP': '\n\n'.join(magiclist),
+                })
+
         # Meta Topics is a list of Topics:
         topickeys = sorted(self.topicsdict.keys())
         topicnames = [ '* help.%s' % (n,) for n in topickeys ]
         topicnames.insert(0, '* help')
         topics = '\n'.join(topicnames)
 
-        self.topicsdict['topics'] = HelpTopic('Topics:\n\n%s\n\n' % (topics,))
-
-        HelpTopic.__init__(self, Usage)
+        self.topicsdict['topics'] = HelpTopic('\nTopics:\n\n%s\n\n' % (topics,))
 
         for (name, topic) in self.topicsdict.iteritems():
             setattr(self, name, topic)

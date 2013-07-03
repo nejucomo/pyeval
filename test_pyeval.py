@@ -56,7 +56,7 @@ class DocTests (unittest.TestCase):
 
     def test_docs(self):
 
-        hb = pyeval.HelpBrowser()
+        hb = pyeval.HelpBrowser(pyeval.MagicScope())
 
         for (topicname, topic) in [('help', hb)] + hb.topicsdict.items():
             for (expr, args, inputText, outlines) in self._parseEntries(repr(topic)):
@@ -221,7 +221,7 @@ class AutoImporterTests (unittest.TestCase):
 class HelpBrowserTests (unittest.TestCase):
     def setUp(self):
         self.delegateCalls = []
-        self.help = pyeval.HelpBrowser(self.delegateCalls.append)
+        self.help = pyeval.HelpBrowser(pyeval.MagicScope(), self.delegateCalls.append)
 
     def test___repr__(self):
         self.assertEqual(pyeval.Usage, repr(self.help))
