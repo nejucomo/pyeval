@@ -45,18 +45,43 @@ importing 'math'.  For more detail, run:
 
 For more examples, run:
 
-  $ pyeval 'help.Examples'
+  $ pyeval 'help.examples'
   ...
 
 For more help topics, run:
 
-  $ pyeval 'help.Topics'
+  $ pyeval 'help.topics'
   ...
 
 '''
 
 MagicScopeText = '''
-FIXME - write this
+The global scope of EXPR is an instance of MagicScope, a subclass of
+dict, which:
+
+* includes all __builtins__.
+* includes magic variables (see below).
+* resolves to an AutoImporter for any unbound reference.
+
+For more detail about the AutoImporter mechanism, run:
+
+  $ pyeval 'help.AutoImporter'
+  ...
+
+A magic variable's value is only computed on the first reference.
+For example, the magic variable 'i' is the string read from sys.stdin.
+It can be used idempotently with multiple references in a single
+expression.  This example shows the number of characters and words
+in stdin:
+
+  $ echo 'Hello World!' | pyeval '[len(i), len(i.split())]'
+  [12, 2]
+
+Magic variables have individual help documentation, see:
+
+  $ pyeval 'help.MagicVariables'
+  ...
+
 '''
 
 AutoImporterText = '''
@@ -233,21 +258,29 @@ class HelpTopic (object):
 
 class HelpBrowser (HelpTopic):
 
-    # Topics:
-    MagicScope = HelpTopic(MagicScopeText)
-    AutoImporter = HelpTopic(AutoImporterText)
-    Examples = HelpTopic(ExamplesText)
-
-    Topics = HelpTopic(
-        'Topics: %s' % (', '.join(
-                [ 'help.%s' % (n,)
-                  for (n, v) in sorted(locals().items()) if isinstance(v, HelpTopic)
-                  ]),))
-
     def __init__(self, delegate=help):
         """The constructor allows dependency injection for unittests."""
         self._delegate = delegate
+
+        self.topics = {
+            'MagicScope': HelpTopic(MagicScopeText),
+            'AutoImporter': HelpTopic(AutoImporterText),
+            'examples': HelpTopic(ExamplesText),
+            }
+
+        # Meta Topics is a list of Topics:
+        topickeys = sorted(self.topics.keys())
+        topicnames = [ '* help.%s' % (n,) for n in topickeys ]
+        topicnames.insert(0, '* help')
+        topics = '\n'.join(topicnames)
+
+        self.topics['topics'] = HelpTopic('Topics:\n\n%s\n\n' % (topics,))
+
         HelpTopic.__init__(self, Usage)
+
+        for (name, topic) in self.topics.iteritems():
+            setattr(self, name, topic)
+
 
     def __call__(self, obj):
         if isinstance(obj, AutoImporter):
