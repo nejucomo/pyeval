@@ -18,7 +18,32 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Usage = """
 Usage: pyeval EXPR [ARG...]
 
-FIXME not yet written
+Evaluate EXPR with the python interpreter.  Any other ARGs are available
+as strings in the expression.  Example:
+
+  $ pyeval 'math.cos(math.pi * 2)'
+  1.0
+
+Evaluation differs from the interactive interpreter in three ways:
+result display, magic variables, and automatic imports.
+
+The result is displayed with pprint.pprint, unless it is None, in which case
+nothing is displayed.
+
+There are "magic variables" whose result is only computed on the first
+dereference. For more detail, run:
+
+  $ pyeval 'help(MagicScope)'
+
+Any reference which is not a standard builtin or a magic variable results
+in an AutoImporter instance, which the first example demonstrates by
+importing 'math'.  For more detail, run:
+
+  $ pyeval 'help(AutoImporter)'
+
+For more examples, run:
+
+  $ pyeval 'help(Examples)'
 """
 
 

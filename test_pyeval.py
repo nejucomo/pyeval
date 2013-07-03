@@ -6,6 +6,7 @@ from types import ModuleType
 import pprint
 from cStringIO import StringIO
 import math
+import re
 
 import pyeval
 
@@ -26,6 +27,40 @@ class mainTests (unittest.TestCase):
 
     def test_math_pi(self):
         self._test_main(math.pi, ['math.pi', 'A', 'B', 'C'])
+
+
+
+class DocTests (unittest.TestCase):
+
+    IndentRgx = re.compile(r'^  .*?$', re.MULTILINE)
+    InvocationRgx = re.compile(r"^  \$ pyeval '(.*?)' ?(.*?)$")
+
+    def _parseEntries(self, text):
+        entry = None
+        for m in self.IndentRgx.finditer(text):
+            m2 = self.InvocationRgx.match(m.group(0))
+            if m2 is None:
+                entry[2].append(m.group(0).lstrip())
+            else:
+                if entry is not None:
+                    yield entry
+
+                args = m2.group(2).split()
+                entry = (m2.group(1), args, [])
+
+        if entry is not None:
+            yield entry
+
+    def test_Usage(self):
+        for (expr, args, outlines) in self._parseEntries(pyeval.Usage):
+            expectedOut = '\n'.join(outlines) + '\n'
+
+            fio = FakeIO()
+            with fio:
+                pyeval.main([expr] + args)
+
+            self.assertEqual(expectedOut, fio.fakeout.getvalue())
+            self.assertEqual('', fio.fakeerr.getvalue())
 
 
 
