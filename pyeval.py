@@ -24,18 +24,7 @@ import __builtin__
 import sys
 import pprint
 from types import ModuleType
-import os
 
-# NOTE: I do not know how well this will work in practice:
-# If sys.stdout.encoding is not set (because stdout is not a terminal),
-# we use LC_CTYPE *anyway*.
-try:
-    Encoding = sys.stdout.encoding or os.environ.get('LC_CTYPE', 'UTF-8').split( '.', 1 )[-1]
-
-except ValueError:
-    raise SystemExit(
-        'Could not determine output encoding.  Set the LC_CTYPE environment variable to a desired python encoding.'
-        )
 
 
 def main(args = sys.argv[1:]):
