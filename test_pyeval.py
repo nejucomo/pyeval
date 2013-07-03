@@ -3,7 +3,7 @@
 import sys
 import unittest
 from types import ModuleType
-from pprint import pprint
+import pprint
 from cStringIO import StringIO
 
 import pyeval
@@ -38,7 +38,7 @@ class displayTests (unittest.TestCase):
     def test_displayValues(self):
         for value in [42, "banana", range(1024), vars()]:
             f = StringIO()
-            pprint(value, f)
+            pprint.pprint(value, f)
             expected = f.getvalue()
 
             fio = FakeIO()
@@ -53,7 +53,17 @@ class displayTests (unittest.TestCase):
 
 class MagicScopeTests (unittest.TestCase):
     def setUp(self):
-        self.scope = pyeval.MagicScope()
+        self.args = [self.a0, self.a1] = ['foo', 'bar']
+        self.help = pyeval.HelpBrowser()
+        self.pf = pprint.pformat
+
+        self.scope = pyeval.MagicScope(
+            help=self.help,
+            pf=self.pf,
+            args=self.args,
+            a0=self.a0,
+            a1=self.a1,
+            )
 
     def test_inputCaching(self):
         rawin = 'foo\nbar\n\n'
@@ -67,6 +77,11 @@ class MagicScopeTests (unittest.TestCase):
                 self.assertEqual(stripin, self.scope['i'])
                 self.assertEqual(rlines, self.scope['rlines'])
                 self.assertEqual(lines, self.scope['lines'])
+                self.assertEqual(self.help, self.scope['help'])
+                self.assertEqual(self.pf, self.scope['pf'])
+                self.assertEqual(self.args, self.scope['args'])
+                self.assertEqual(self.a0, self.scope['a0'])
+                self.assertEqual(self.a1, self.scope['a1'])
 
     def test_AutoImporterHook(self):
         # Pick a module that is not imported by default:
