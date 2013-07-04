@@ -36,69 +36,6 @@ class mainTests (unittest.TestCase):
 
 
 
-class DocExampleVerificationTests (unittest.TestCase):
-
-    IndentRgx = re.compile(r'^    .*?$', re.MULTILINE)
-    InvocationRgx = re.compile(r"^    \$")
-    PyevalInvocationRgx = re.compile(r"^    \$ (echo '(?P<INPUT>.*?)' \| )?pyeval '(?P<EXPR>.*?)' ?(?P<ARGS>.*?)$")
-
-
-    def _parseEntries(self, text):
-        entry = None
-        for m in self.IndentRgx.finditer(text):
-            match = m.group(0)
-            m2 = self.InvocationRgx.match(match)
-            if m2 is None:
-                entry[3].append(m.group(0)[4:])
-            else:
-                if entry is not None and entry[0] is not None:
-                    yield entry
-
-                m3 = self.PyevalInvocationRgx.match(match)
-                if m3 is not None:
-                    args = m3.group('ARGS').split()
-                    entry = (m3.group('EXPR'), args, m3.group('INPUT'), [])
-                else:
-                    # This is an non-tested example, such as a non-call to pyeval.
-                    entry = (None, None, None, [])
-
-        if entry is not None and entry[0] is not None:
-            yield entry
-
-
-    def test_docs(self):
-
-        hb = pyeval.HelpBrowser(pyeval.MagicScope())
-
-        for (topicname, topic) in [('help', hb)] + hb.topicsdict.items():
-            for (expr, args, inputText, outlines) in self._parseEntries(repr(topic)):
-                try:
-                    if inputText is None:
-                        inputText = ''
-
-                    expectedOut = '\n'.join(outlines)
-
-                    # Implement wildcard matches on "...":
-                    expectedRawPattern = re.escape(expectedOut)
-                    expectedPattern = expectedRawPattern.replace(r'\.\.\.', '.*?')
-                    expectedRgx = re.compile(expectedPattern, re.DOTALL)
-
-                    fio = FakeIO(inputText + '\n')
-
-                    with fio:
-                        pyeval.main([expr] + args)
-
-                    self.assertRegexpMatches(fio.fakeout.getvalue(), expectedRgx)
-                    self.assertEqual('', fio.fakeerr.getvalue())
-
-                except Exception, e:
-                    e.args += ('In topic %r' % (topicname,),
-                               'In EXPR %r' % (expr,),
-                               )
-                    raise
-
-
-
 class pyevalTests (unittest.TestCase):
     """High-level tests of pyeval.pyeval."""
 
@@ -137,6 +74,31 @@ class displayPrettyTests (unittest.TestCase):
 
             self.assertEqual(expected, fio.fakeout.getvalue())
             self.assertEqual('', fio.fakeerr.getvalue())
+
+
+
+class indentationTests (unittest.TestCase):
+
+    def test_dedentAndIndent(self):
+        x = """
+          cheer:
+            whoop!
+          effect:
+             wham!
+
+        """
+
+        expectedDedent = 'cheer:\n  whoop!\neffect:\n   wham!\n'
+
+        dedented = pyeval.dedent(x)
+
+        self.assertEqual(expectedDedent, dedented)
+        self.assertEqual(dedented, pyeval.indent(dedented, 0))
+
+        expectedIndent = x[1:].rstrip() + '\n'
+
+        self.assertEqual(expectedIndent, pyeval.indent(dedented, 10))
+
 
 
 
@@ -246,6 +208,68 @@ class HelpBrowserTests (unittest.TestCase):
         self.help(ai)
         self.assertEqual([sys], self.delegateCalls)
 
+
+
+class DocExampleVerificationTests (unittest.TestCase):
+
+    IndentRgx = re.compile(r'^    .*?$', re.MULTILINE)
+    InvocationRgx = re.compile(r"^    \$")
+    PyevalInvocationRgx = re.compile(r"^    \$ (echo '(?P<INPUT>.*?)' \| )?pyeval '(?P<EXPR>.*?)' ?(?P<ARGS>.*?)$")
+
+
+    def _parseEntries(self, text):
+        entry = None
+        for m in self.IndentRgx.finditer(text):
+            match = m.group(0)
+            m2 = self.InvocationRgx.match(match)
+            if m2 is None:
+                entry[3].append(m.group(0)[4:])
+            else:
+                if entry is not None and entry[0] is not None:
+                    yield entry
+
+                m3 = self.PyevalInvocationRgx.match(match)
+                if m3 is not None:
+                    args = m3.group('ARGS').split()
+                    entry = (m3.group('EXPR'), args, m3.group('INPUT'), [])
+                else:
+                    # This is an non-tested example, such as a non-call to pyeval.
+                    entry = (None, None, None, [])
+
+        if entry is not None and entry[0] is not None:
+            yield entry
+
+
+    def test_docs(self):
+
+        hb = pyeval.HelpBrowser(pyeval.MagicScope())
+
+        for (topicname, topic) in [('help', hb)] + hb.topicsdict.items():
+            for (expr, args, inputText, outlines) in self._parseEntries(repr(topic)):
+                try:
+                    if inputText is None:
+                        inputText = ''
+
+                    expectedOut = '\n'.join(outlines)
+
+                    # Implement wildcard matches on "...":
+                    expectedRawPattern = re.escape(expectedOut)
+                    expectedPattern = expectedRawPattern.replace(r'\.\.\.', '.*?')
+                    expectedRgx = re.compile(expectedPattern, re.DOTALL)
+
+                    fio = FakeIO(inputText + '\n')
+
+                    with fio:
+                        pyeval.main([expr] + args)
+
+                    self.assertRegexpMatches(fio.fakeout.getvalue(), expectedRgx)
+                    self.assertEqual('', fio.fakeerr.getvalue())
+
+                except Exception, e:
+                    e.args += ('In topic %r' % (topicname,),
+                               'In EXPR %r' % (expr,),
+                               )
+                    raise
 
 
 

@@ -221,6 +221,30 @@ def getEncoding():
             or os.environ.get('LC_CTYPE', 'UTF-8').split( '.', 1 )[-1])
 
 
+def dedent(text):
+    indentedlines = text.rstrip().split('\n')
+
+    while indentedlines[0] == '':
+        indentedlines.pop(0)
+
+    firstline = indentedlines[0]
+
+    indent = len(firstline) - len(firstline.lstrip())
+
+    dedentedlines = []
+    for indented in indentedlines:
+        assert indented == '' or indented[:indent].strip() == '', `indented`
+        dedentedlines.append(indented[indent:])
+
+    return '\n'.join(dedentedlines) + '\n'
+
+
+def indent(text, amount=2):
+    indent = ' ' * amount
+    separator = '\n' + indent
+    return indent + separator.join(text.rstrip().split('\n')) + '\n'
+
+
 
 class MagicScope (dict):
     def __init__(self, fallthrough=lambda key: AutoImporter(import_last(key))):
@@ -438,25 +462,11 @@ class HelpBrowser (HelpTopic):
         magiclist = []
 
         for (name, doc) in scope.getMagicDocs():
-            doclines = doc.split('\n')
-
-            while doclines[0] == '':
-                doclines.pop(0)
-
-            firstline = doclines[0]
-
-            indent = len(firstline) - len(firstline.lstrip())
-
-            dedentedlines = []
-            for docline in doclines:
-                assert docline == '' or docline[:indent].strip() == '', `name, docline`
-                dedentedlines.append(docline[indent:])
-
-            magiclist.append('%s:\n  %s' % (name, '\n  '.join(dedentedlines).rstrip()))
+            magiclist.append('%s:\n%s' % (name, indent(dedent(doc), 2)))
 
         self.topicsdict['magic'] = HelpTopic(
             MagicVariablesTemplate % {
-                'MAGIC_VARS_HELP': '\n\n'.join(magiclist),
+                'MAGIC_VARS_HELP': '\n'.join(magiclist),
                 })
 
         # Meta Topics is a list of Topics:
