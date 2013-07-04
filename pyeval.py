@@ -151,9 +151,22 @@ FIXME - write this
 
 
 import __builtin__
+import os
 import sys
 import pprint
 from types import ModuleType
+
+
+# NOTE: I do not know how well this will work in practice:
+# If sys.stdout.encoding is not set (because stdout is not a terminal),
+# we use LC_CTYPE *anyway*.
+try:
+    Encoding = sys.stdout.encoding or os.environ.get('LC_CTYPE', 'UTF-8').split( '.', 1 )[-1]
+
+except ValueError:
+    raise SystemExit(
+        'Could not determine output encoding.  Set the LC_CTYPE environment variable to a desired python encoding.'
+        )
 
 
 def displayPretty(obj):
@@ -278,7 +291,7 @@ class MagicScope (dict):
               x	y
               z
 
-            Note, it's possible to display unicode this way, using python's standard output encoding:
+            Note, it's possible to display unicode this way, using the detected encoding:
 
               $ pyeval 'p(u"\u2606")'
               ☆
@@ -286,6 +299,9 @@ class MagicScope (dict):
 
             def printFunc(x):
                 r"""print the argument."""
+                if type(x) is unicode:
+                    x = x.encode(Encoding)
+
                 print x
 
             return printFunc
