@@ -101,7 +101,6 @@ class indentationTests (unittest.TestCase):
 
 
 
-
 class MagicScopeTests (unittest.TestCase):
     def setUp(self):
         self.caught = []
@@ -244,8 +243,11 @@ class DocExampleVerificationTests (unittest.TestCase):
 
         hb = pyeval.HelpBrowser(pyeval.MagicScope())
 
+        count = 0
+
         for topic in hb.getAllSubtopics():
             for (expr, args, inputText, outlines) in self._parseEntries(repr(topic)):
+                count += 1
                 try:
                     if inputText is None:
                         inputText = ''
@@ -270,6 +272,8 @@ class DocExampleVerificationTests (unittest.TestCase):
                                'In EXPR %r' % (expr,),
                                )
                     raise
+
+        self.assertEqual(26, count)
 
 
 

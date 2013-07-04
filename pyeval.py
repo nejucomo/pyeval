@@ -51,124 +51,6 @@ For more examples, run:
     ...
 """
 
-MagicScopeText = r"""
-The global scope of EXPR is an instance of MagicScope, a subclass of
-dict, which:
-
-* includes all __builtins__.
-* includes magic variables (see below).
-* resolves to an AutoImporter for any unbound reference.
-
-For more detail about the AutoImporter mechanism, run:
-
-    $ pyeval 'help.AutoImporter'
-    ...
-
-A magic variable's value is only computed on the first reference.
-For example, the magic variable 'i' is the string read from sys.stdin.
-It can be used idempotently with multiple references in a single
-expression.  This example shows the number of characters and words
-in stdin:
-
-    $ echo 'Hello World!' | pyeval '[len(i), len(i.split())]'
-    [12, 2]
-
-Magic variables have individual help documentation, see:
-
-    $ pyeval 'help.magic'
-    ...
-"""
-
-MagicVariablesTemplate = r"""
-For detail on the MagicScope, run:
-
-    $ pyeval 'help.MagicScope'
-    ...
-
-Magic Variables:
-
-%(MAGIC_VARS_HELP)s
-"""
-
-AutoImporterText = r"""
-The AutoImporter class allows expressions to use modules directly with
-an implicit "import on demand" functionality.
-
-It accomplishes this by acting as a proxy to an underlying python module,
-and delegating attribute lookups to that module.  For example, this works:
-
-    $ pyeval 'math.pi'
-    3.141592653589793
-
-If any attribute lookup fails, it attempts to import a submodule, and
-if that is successful, it wraps that submodule in a new AutoImporter.
-
-Unfortunately this approach is not completely transparent: references to
-what look like python modules are actually to an instance of AutoImporter
-which proxies attribute access to the module.
-
-You can see this by inspecting the repr of a module expression:
-
-    $ pyeval 'logging.config'
-    <AutoImporter of <module '...'>>
-
-An AutoImporter instance has the following attributes:
-
-_ai_mod
-  The original module which is being proxied.
-
-_ai_path
-  A path string to the source of the module.  This is useful for testing
-  your PYTHONPATH:
-
-    $ pyeval 'pyeval._ai_path'
-    '/.../pyeval.py'
-
-_ai_name
-  The full module name of the module.  For example:
-
-    $ pyeval 'logging.config._ai_name'
-    'logging.config'
-
-The 'help' HelpBrowser is aware of AutoImporters, so pyeval can be used
-similar to pydoc:
-
-    $ pyeval 'help(logging)'
-    ...
-
-    $ pydoc 'logging'
-    ...
-"""
-
-ExamplesText = r"""
-Exploring python modules:
-
-    $ pyeval 'help(logging)'
-    ...
-
-    $ pyeval 'help(logging.handlers.MemoryHandler)'
-    ...
-
-Finding the path to a module:
-
-    $ pyeval 'logging.handlers._ai_path'
-    '/.../handlers.py'
-
-Viewing the source of a module:
-
-    $ view $(pyeval 'p(logging.handlers._ai_path)')
-
-Pretty printing sys.path:
-
-    $ pyeval 'sys.path'
-    ...
-
-Assigning and using the python version string to a shell variable:
-
-    $ PYVER=$(pyeval 'p("%d.%d" % sys.version_info[:2])')
-    $ ls /usr/lib/python${PYVER} | wc -l
-"""
-
 
 import __builtin__
 import os
@@ -429,25 +311,30 @@ class AutoImporter (object):
 
 class HelpTopic (object):
 
-    def __init__(self, text):
-        self._fullname = None
-        self.text = dedent(text)
+    def __init__(self, parent):
+        self.parent = parent
         self.subtopics = {}
+
+        for topicCls in self._getSubtopics():
+            topic = topicCls(self)
+            self.subtopics[topic.name] = topic
+
+    # Subclass interface:
+    @staticmethod
+    def _getSubtopics():
+        return []
+
+    # User interface:
+    @property
+    def name(self):
+        cname = type(self).__name__
+        assert cname.endswith('Help'), `self`
+        return cname[:-len('Help')]
 
     @property
     def fullname(self):
-        assert self._fullname is not None
-        return self._fullname
+        return '%s.%s' % (self.parent.fullname, self.name)
 
-    # Subclass interface:
-    def _registerSubtopic(self, name, topic):
-        if type(topic) is str:
-            topic = HelpTopic(topic)
-
-        topic._fullname = '%s.%s' % (self.fullname, name)
-        self.subtopics[name] = topic
-
-    # User interface:
     def getAllSubtopics(self):
         topics = [self]
 
@@ -466,7 +353,7 @@ class HelpTopic (object):
           %(BODY)s
         """) % {
             'NAME': self.fullname,
-            'BODY': self.text,
+            'BODY': dedent(self.HelpText),
             }
 
         if len(self.subtopics) > 0:
@@ -489,18 +376,32 @@ class HelpTopic (object):
 
 class HelpBrowser (HelpTopic):
 
+    HelpText = Usage
+
+    @staticmethod
+    def _getSubtopics():
+        return [
+            MagicScopeHelp,
+            AutoImporterHelp,
+            examplesHelp,
+            ]
+
+
     def __init__(self, scope, delegate=help):
         """The constructor allows dependency injection for unittests."""
 
-        HelpTopic.__init__(self, Usage)
-        self._fullname = 'help'
+        self._scope = scope
         self._delegate = delegate
 
-        self._registerSubtopic('MagicScope', MagicScopeText)
-        self._registerSubtopic('AutoImporter', AutoImporterText)
-        self._registerSubtopic('examples', ExamplesText)
-        self._registerSubtopic('magic', MagicHelp(scope))
+        HelpTopic.__init__(self, None)
 
+    @property
+    def name(self):
+        return 'help'
+
+    @property
+    def fullname(self):
+        return self.name
 
     def __call__(self, obj):
         if isinstance(obj, AutoImporter):
@@ -509,19 +410,127 @@ class HelpBrowser (HelpTopic):
         self._delegate(obj)
 
 
+class MagicScopeHelp (HelpTopic):
+
+    HelpText = r"""
+      The global scope of EXPR is an instance of MagicScope, a subclass of
+      dict, which:
+
+      * includes all __builtins__.
+      * includes magic variables (see below).
+      * resolves to an AutoImporter for any unbound reference.
+
+      For more detail about the AutoImporter mechanism, run:
+
+          $ pyeval 'help.AutoImporter'
+          ...
+
+      A magic variable's value is only computed on the first reference.
+      For example, the magic variable 'i' is the string read from sys.stdin.
+      It can be used idempotently with multiple references in a single
+      expression.  This example shows the number of characters and words
+      in stdin:
+
+          $ echo 'Hello World!' | pyeval '[len(i), len(i.split())]'
+          [12, 2]
+    """
+
+    @staticmethod
+    def _getSubtopics():
+        return [variablesHelp]
 
 
-class MagicHelp (HelpTopic):
+class variablesHelp (HelpTopic):
 
-    def __init__(self, scope):
+    @property
+    def HelpText(self):
+        scope = self.parent.parent._scope
 
-        magiclist = []
+        return '\n'.join(
+            ['%s:\n%s' % (name, indent(dedent(doc)))
+             for (name, doc) in scope.getMagicDocs()])
 
-        for (name, doc) in scope.getMagicDocs():
-            magiclist.append('%s:\n%s' % (name, indent(dedent(doc))))
 
-        HelpTopic.__init__(
-            self,
-            MagicVariablesTemplate % {
-                'MAGIC_VARS_HELP': '\n'.join(magiclist),
-                })
+class AutoImporterHelp (HelpTopic):
+
+    HelpText = r"""
+      The AutoImporter class allows expressions to use modules directly with
+      an implicit "import on demand" functionality.
+
+      It accomplishes this by acting as a proxy to an underlying python module,
+      and delegating attribute lookups to that module.  For example, this works:
+
+          $ pyeval 'math.pi'
+          3.141592653589793
+
+      If any attribute lookup fails, it attempts to import a submodule, and
+      if that is successful, it wraps that submodule in a new AutoImporter.
+
+      Unfortunately this approach is not completely transparent: references to
+      what look like python modules are actually to an instance of AutoImporter
+      which proxies attribute access to the module.
+
+      You can see this by inspecting the repr of a module expression:
+
+          $ pyeval 'logging.config'
+          <AutoImporter of <module '...'>>
+
+      An AutoImporter instance has the following attributes:
+
+      _ai_mod
+        The original module which is being proxied.
+
+      _ai_path
+        A path string to the source of the module.  This is useful for testing
+        your PYTHONPATH:
+
+          $ pyeval 'pyeval._ai_path'
+          '/.../pyeval.py'
+
+      _ai_name
+        The full module name of the module.  For example:
+
+          $ pyeval 'logging.config._ai_name'
+          'logging.config'
+
+      The 'help' HelpBrowser is aware of AutoImporters, so pyeval can be used
+      similar to pydoc:
+
+          $ pyeval 'help(logging)'
+          ...
+
+          $ pydoc 'logging'
+          ...
+    """
+
+
+class examplesHelp (HelpTopic):
+
+    HelpText = r"""
+      Exploring python modules:
+
+          $ pyeval 'help(logging)'
+          ...
+
+          $ pyeval 'help(logging.handlers.MemoryHandler)'
+          ...
+
+      Finding the path to a module:
+
+          $ pyeval 'logging.handlers._ai_path'
+          '/.../handlers.py'
+
+      Viewing the source of a module:
+
+          $ view $(pyeval 'p(logging.handlers._ai_path)')
+
+      Pretty printing sys.path:
+
+          $ pyeval 'sys.path'
+          ...
+
+      Assigning and using the python version string to a shell variable:
+
+          $ PYVER=$(pyeval 'p("%d.%d" % sys.version_info[:2])')
+          $ ls /usr/lib/python${PYVER} | wc -l
+    """
