@@ -143,10 +143,25 @@ similar to pydoc:
     $ pyeval 'help(logging)'
     ...
 
+    $ pydoc 'logging'
+    ...
+
 """
 
 ExamplesText = r"""
-FIXME - write this
+Exploring python modules:
+
+    $ pyeval 'help(logging)'
+    ...
+
+    $ pyeval 'help(logging.handlers.MemoryHandler)'
+    ...
+
+Finding the path to a module:
+
+    $ pyeval 'logging.handlers._ai_path'
+    '/.../handlers.py'
+
 """
 
 

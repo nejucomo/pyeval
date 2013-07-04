@@ -36,10 +36,11 @@ class mainTests (unittest.TestCase):
 
 
 
-class DocTests (unittest.TestCase):
+class DocExampleVerificationTests (unittest.TestCase):
 
     IndentRgx = re.compile(r'^    .*?$', re.MULTILINE)
-    InvocationRgx = re.compile(r"^    \$ (echo '(?P<INPUT>.*?)' \| )?pyeval '(?P<EXPR>.*?)' ?(?P<ARGS>.*?)$")
+    InvocationRgx = re.compile(r"^    \$")
+    PyevalInvocationRgx = re.compile(r"^    \$ (echo '(?P<INPUT>.*?)' \| )?pyeval '(?P<EXPR>.*?)' ?(?P<ARGS>.*?)$")
 
 
     def _parseEntries(self, text):
@@ -50,13 +51,18 @@ class DocTests (unittest.TestCase):
             if m2 is None:
                 entry[3].append(m.group(0)[4:])
             else:
-                if entry is not None:
+                if entry is not None and entry[0] is not None:
                     yield entry
 
-                args = m2.group('ARGS').split()
-                entry = (m2.group('EXPR'), args, m2.group('INPUT'), [])
+                m3 = self.PyevalInvocationRgx.match(match)
+                if m3 is not None:
+                    args = m3.group('ARGS').split()
+                    entry = (m3.group('EXPR'), args, m3.group('INPUT'), [])
+                else:
+                    # This is an non-tested example, such as a non-call to pyeval.
+                    entry = (None, None, None, [])
 
-        if entry is not None:
+        if entry is not None and entry[0] is not None:
             yield entry
 
 
