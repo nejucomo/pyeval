@@ -269,6 +269,13 @@ class MagicScope (dict):
 
               $ pyeval 'p(range(123))'
               [0, 1, ...
+
+            Also, it allows you to print strings directly:
+
+              $ pyeval 'p("x\ty\nz")'
+              x	y
+              z
+
             """
             def printFunc(x):
                 r"""print the argument."""
