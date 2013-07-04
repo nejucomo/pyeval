@@ -7,8 +7,14 @@ import pprint
 from cStringIO import StringIO
 import math
 import re
+import os
 
 import pyeval
+
+
+
+# Unless there's a specific exception, all testing uses this encoding:
+os.environ['LC_TYPE'] = 'utf-8'
 
 
 

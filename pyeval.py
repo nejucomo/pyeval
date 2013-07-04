@@ -157,17 +157,6 @@ import pprint
 from types import ModuleType
 
 
-# NOTE: I do not know how well this will work in practice:
-# If sys.stdout.encoding is not set (because stdout is not a terminal),
-# we use LC_CTYPE *anyway*.
-try:
-    Encoding = sys.stdout.encoding or os.environ.get('LC_CTYPE', 'UTF-8').split( '.', 1 )[-1]
-
-except ValueError:
-    raise SystemExit(
-        'Could not determine output encoding.  Set the LC_CTYPE environment variable to a desired python encoding.'
-        )
-
 
 def displayPretty(obj):
     if obj is not None:
@@ -193,6 +182,14 @@ def import_last(modpath):
     for name in modpath.split('.')[1:]:
         mod = getattr(mod, name)
     return mod
+
+
+def getEncoding():
+    # NOTE: I do not know how well this will work in practice:
+    # If sys.stdout.encoding is not set (because stdout is not a terminal),
+    # we use LC_CTYPE *anyway*.
+    return (getattr(sys.stdout, 'encoding', None)
+            or os.environ.get('LC_CTYPE', 'UTF-8').split( '.', 1 )[-1])
 
 
 
@@ -300,7 +297,7 @@ class MagicScope (dict):
             def printFunc(x):
                 r"""print the argument."""
                 if type(x) is unicode:
-                    x = x.encode(Encoding)
+                    x = x.encode(getEncoding())
 
                 print x
 
