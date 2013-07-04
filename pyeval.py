@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 CopyrightInfo = r"""
 Copyright 2013 Nathan Wilcox
 
@@ -276,10 +278,16 @@ class MagicScope (dict):
               x	y
               z
 
+            Note, it's possible to display unicode this way, using python's standard output encoding:
+
+              $ pyeval 'p(u"\u2606")'
+              ☆
             """
+
             def printFunc(x):
                 r"""print the argument."""
                 print x
+
             return printFunc
 
     # Explicit magic interface:
