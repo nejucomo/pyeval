@@ -198,7 +198,7 @@ class HelpBrowserTests (unittest.TestCase):
         self.help = pyeval.HelpBrowser(pyeval.MagicScope(), self.delegateCalls.append)
 
     def test___repr__(self):
-        self.assertEqual(pyeval.Usage, repr(self.help))
+        self.assertTrue(repr(self.help).find(pyeval.Usage) != -1)
         self.assertEqual([], self.delegateCalls)
 
     def test_autoImporter(self):
@@ -244,7 +244,7 @@ class DocExampleVerificationTests (unittest.TestCase):
 
         hb = pyeval.HelpBrowser(pyeval.MagicScope())
 
-        for (topicname, topic) in [('help', hb)] + hb.topicsdict.items():
+        for topic in hb.getContainedTopics():
             for (expr, args, inputText, outlines) in self._parseEntries(repr(topic)):
                 try:
                     if inputText is None:
@@ -266,7 +266,7 @@ class DocExampleVerificationTests (unittest.TestCase):
                     self.assertEqual('', fio.fakeerr.getvalue())
 
                 except Exception, e:
-                    e.args += ('In topic %r' % (topicname,),
+                    e.args += ('In topic %r' % (topic.fullname,),
                                'In EXPR %r' % (expr,),
                                )
                     raise

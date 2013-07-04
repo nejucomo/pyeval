@@ -49,12 +49,6 @@ For more examples, run:
 
     $ pyeval 'help.examples'
     ...
-
-For more help topics, run:
-
-    $ pyeval 'help.topics'
-    ...
-
 """
 
 MagicScopeText = r"""
@@ -83,7 +77,6 @@ Magic variables have individual help documentation, see:
 
     $ pyeval 'help.magic'
     ...
-
 """
 
 MagicVariablesTemplate = r"""
@@ -145,7 +138,6 @@ similar to pydoc:
 
     $ pydoc 'logging'
     ...
-
 """
 
 ExamplesText = r"""
@@ -175,7 +167,6 @@ Assigning and using the python version string to a shell variable:
 
     $ PYVER=$(pyeval 'p("%d.%d" % sys.version_info[:2])')
     $ ls /usr/lib/python${PYVER} | wc -l
-
 """
 
 
@@ -437,48 +428,77 @@ class AutoImporter (object):
 
 
 class HelpTopic (object):
-    def __init__(self, repr):
-        self._repr = repr
+
+    def __init__(self, text):
+        self._fullname = None
+        self.text = dedent(text)
+        self.subtopics = {}
+
+    @property
+    def fullname(self):
+        assert self._fullname is not None
+        return self._fullname
+
+    # Subclass interface:
+    def _registerSubtopic(self, name, topic):
+        if type(topic) is str:
+            topic = HelpTopic(topic)
+
+        topic._fullname = '%s.%s' % (self.fullname, name)
+        self.subtopics[name] = topic
+
+    # User interface:
+    def getContainedTopics(self):
+        topics = [self]
+
+        for (_, topic) in sorted(self.subtopics.items()):
+            topics.extend(topic.getContainedTopics())
+
+        return topics
+
+    def __getattr__(self, name):
+        return self.subtopics[name]
 
     def __repr__(self):
-        return self._repr
+        text = dedent("""
+          Topic: %(NAME)s
 
+          %(BODY)s
+        """) % {
+            'NAME': self.fullname,
+            'BODY': self.text,
+            }
+
+        if len(self.subtopics) > 0:
+            subnames = [t.fullname for t in self.subtopics.values()]
+            subtopics = '\n'.join(sorted(subnames))
+
+            text = dedent("""
+              %(PREFIX)s\
+
+              Subtopics:
+              %(SUBTOPICS)s
+            """) % {
+                'PREFIX': text,
+                'SUBTOPICS': subtopics,
+                }
+
+        return text
 
 
 class HelpBrowser (HelpTopic):
 
     def __init__(self, scope, delegate=help):
         """The constructor allows dependency injection for unittests."""
-        HelpTopic.__init__(self, Usage)
 
+        HelpTopic.__init__(self, Usage)
+        self._fullname = 'help'
         self._delegate = delegate
 
-        self.topicsdict = {
-            'MagicScope': HelpTopic(MagicScopeText),
-            'AutoImporter': HelpTopic(AutoImporterText),
-            'examples': HelpTopic(ExamplesText),
-            }
-
-        magiclist = []
-
-        for (name, doc) in scope.getMagicDocs():
-            magiclist.append('%s:\n%s' % (name, indent(dedent(doc), 2)))
-
-        self.topicsdict['magic'] = HelpTopic(
-            MagicVariablesTemplate % {
-                'MAGIC_VARS_HELP': '\n'.join(magiclist),
-                })
-
-        # Meta Topics is a list of Topics:
-        topickeys = sorted(self.topicsdict.keys())
-        topicnames = [ '* help.%s' % (n,) for n in topickeys ]
-        topicnames.insert(0, '* help')
-        topics = '\n'.join(topicnames)
-
-        self.topicsdict['topics'] = HelpTopic('\nTopics:\n\n%s\n\n' % (topics,))
-
-        for (name, topic) in self.topicsdict.iteritems():
-            setattr(self, name, topic)
+        self._registerSubtopic('MagicScope', MagicScopeText)
+        self._registerSubtopic('AutoImporter', AutoImporterText)
+        self._registerSubtopic('examples', ExamplesText)
+        self._registerSubtopic('magic', MagicHelp(scope))
 
 
     def __call__(self, obj):
@@ -488,3 +508,19 @@ class HelpBrowser (HelpTopic):
         self._delegate(obj)
 
 
+
+
+class MagicHelp (HelpTopic):
+
+    def __init__(self, scope):
+
+        magiclist = []
+
+        for (name, doc) in scope.getMagicDocs():
+            magiclist.append('%s:\n%s' % (name, indent(dedent(doc))))
+
+        HelpTopic.__init__(
+            self,
+            MagicVariablesTemplate % {
+                'MAGIC_VARS_HELP': '\n'.join(magiclist),
+                })
