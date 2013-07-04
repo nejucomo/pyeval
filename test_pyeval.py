@@ -32,8 +32,8 @@ class mainTests (unittest.TestCase):
 
 class DocTests (unittest.TestCase):
 
-    IndentRgx = re.compile(r'^  .*?$', re.MULTILINE)
-    InvocationRgx = re.compile(r"^  \$ (echo '(?P<INPUT>.*?)' \| )?pyeval '(?P<EXPR>.*?)' ?(?P<ARGS>.*?)$")
+    IndentRgx = re.compile(r'^    .*?$', re.MULTILINE)
+    InvocationRgx = re.compile(r"^    \$ (echo '(?P<INPUT>.*?)' \| )?pyeval '(?P<EXPR>.*?)' ?(?P<ARGS>.*?)$")
 
 
     def _parseEntries(self, text):

@@ -1,5 +1,5 @@
 CopyrightInfo = '''
-Copyright 2010 Nathan Wilcox
+Copyright 2013 Nathan Wilcox
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,8 +21,8 @@ Usage: pyeval EXPR [ARG...]
 Evaluate EXPR with the python interpreter.  Any other ARGs are available
 as strings in the expression.  Example:
 
-  $ pyeval 'math.cos(math.pi * 2)'
-  1.0
+    $ pyeval 'math.cos(math.pi * 2)'
+    1.0
 
 Evaluation differs from the interactive interpreter in three ways:
 result display, magic variables, and automatic imports.
@@ -33,25 +33,25 @@ nothing is displayed.
 There are "magic variables" whose result is only computed on the first
 dereference. For more detail, run:
 
-  $ pyeval 'help.MagicScope'
-  ...
+    $ pyeval 'help.MagicScope'
+    ...
 
 Any reference which is not a standard builtin or a magic variable results
 in an AutoImporter instance, which the first example demonstrates by
 importing 'math'.  For more detail, run:
 
-  $ pyeval 'help.AutoImporter'
-  ...
+    $ pyeval 'help.AutoImporter'
+    ...
 
 For more examples, run:
 
-  $ pyeval 'help.examples'
-  ...
+    $ pyeval 'help.examples'
+    ...
 
 For more help topics, run:
 
-  $ pyeval 'help.topics'
-  ...
+    $ pyeval 'help.topics'
+    ...
 
 '''
 
@@ -65,8 +65,8 @@ dict, which:
 
 For more detail about the AutoImporter mechanism, run:
 
-  $ pyeval 'help.AutoImporter'
-  ...
+    $ pyeval 'help.AutoImporter'
+    ...
 
 A magic variable's value is only computed on the first reference.
 For example, the magic variable 'i' is the string read from sys.stdin.
@@ -74,21 +74,21 @@ It can be used idempotently with multiple references in a single
 expression.  This example shows the number of characters and words
 in stdin:
 
-  $ echo 'Hello World!' | pyeval '[len(i), len(i.split())]'
-  [12, 2]
+    $ echo 'Hello World!' | pyeval '[len(i), len(i.split())]'
+    [12, 2]
 
 Magic variables have individual help documentation, see:
 
-  $ pyeval 'help.magic'
-  ...
+    $ pyeval 'help.magic'
+    ...
 
 '''
 
 MagicVariablesTemplate = '''
 For detail on the MagicScope, run:
 
-  $ pyeval 'help.MagicScope'
-  ...
+    $ pyeval 'help.MagicScope'
+    ...
 
 Magic Variables:
 
@@ -102,8 +102,8 @@ an implicit "import on demand" functionality.
 It accomplishes this by acting as a proxy to an underlying python module,
 and delegating attribute lookups to that module.  For example, this works:
 
-  $ pyeval 'math.pi'
-  3.141592653589793
+    $ pyeval 'math.pi'
+    3.141592653589793
 
 If any attribute lookup fails, it attempts to import a submodule, and
 if that is successful, it wraps that submodule in a new AutoImporter.
@@ -114,26 +114,32 @@ which proxies attribute access to the module.
 
 You can see this by inspecting the repr of a module expression:
 
-  $ pyeval 'logging.config'
-  <AutoImporter of <module '...'>>
+    $ pyeval 'logging.config'
+    <AutoImporter of <module '...'>>
 
 An AutoImporter instance has the following attributes:
 
 _ai_mod
-- The original module which is being proxied.
+  The original module which is being proxied.
 
 _ai_path
-- A path string to the source of the module.  This is useful for testing your PYTHONPATH:
+  A path string to the source of the module.  This is useful for testing
+  your PYTHONPATH:
 
-  $ pyeval 'pyeval._ai_path'
-  '/.../pyeval.py'
+    $ pyeval 'pyeval._ai_path'
+    '/.../pyeval.py'
 
 _ai_name
-- The full module name of the module.  For example:
+  The full module name of the module.  For example:
 
-  $ pyeval 'logging.config._ai_name'
-  'logging.config'
+    $ pyeval 'logging.config._ai_name'
+    'logging.config'
 
+The 'help' HelpBrowser is aware of AutoImporters, so pyeval can be used
+similar to pydoc:
+
+    $ pyeval 'help(logging)'
+    ...
 
 '''
 
