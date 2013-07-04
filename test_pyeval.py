@@ -198,13 +198,9 @@ class AutoImporterTests (unittest.TestCase):
         self.assertIs(self.logging, self.parent._ai_mod)
         self.assertIs(self.handlers, self.child._ai_mod)
 
-    def test__ai_parent(self):
-        self.assertIs(None, self.parent._ai_parent)
-        self.assertIs(self.parent, self.child._ai_parent)
-
-    def test__ai_fullname(self):
-        self.assertEqual('logging', self.parent._ai_fullname)
-        self.assertEqual('logging.handlers', self.child._ai_fullname)
+    def test__ai_name(self):
+        self.assertEqual('logging', self.parent._ai_name)
+        self.assertEqual('logging.handlers', self.child._ai_name)
 
     def test__ai_path(self):
         def getsrc(m):

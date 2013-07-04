@@ -99,14 +99,41 @@ AutoImporterText = '''
 The AutoImporter class allows expressions to use modules directly with
 an implicit "import on demand" functionality.
 
-Unfortunately the implementation is not completely transparent:
-references to what look like python modules are actually to an instance
-of AutoImporter which proxies attribute access to the module.
+It accomplishes this by acting as a proxy to an underlying python module,
+and delegating attribute lookups to that module.  For example, this works:
+
+  $ pyeval 'math.pi'
+  3.141592653589793
+
+If any attribute lookup fails, it attempts to import a submodule, and
+if that is successful, it wraps that submodule in a new AutoImporter.
+
+Unfortunately this approach is not completely transparent: references to
+what look like python modules are actually to an instance of AutoImporter
+which proxies attribute access to the module.
 
 You can see this by inspecting the repr of a module expression:
 
   $ pyeval 'logging.config'
   <AutoImporter of <module '...'>>
+
+An AutoImporter instance has the following attributes:
+
+_ai_mod
+- The original module which is being proxied.
+
+_ai_path
+- A path string to the source of the module.  This is useful for testing your PYTHONPATH:
+
+  $ pyeval 'pyeval._ai_path'
+  '/.../pyeval.py'
+
+_ai_name
+- The full module name of the module.  For example:
+
+  $ pyeval 'logging.config._ai_name'
+  'logging.config'
+
 
 '''
 
@@ -232,11 +259,10 @@ class MagicScope (dict):
 
 
 class AutoImporter (object):
-    def __init__(self, mod, parent=None):
+    def __init__(self, mod):
         assert type(mod) is ModuleType, `mod`
 
         self._ai_mod = mod
-        self._ai_parent = parent
 
         try:
             path = mod.__file__
@@ -250,7 +276,7 @@ class AutoImporter (object):
 
 
     @property
-    def _ai_fullname(self):
+    def _ai_name(self):
         return self._ai_mod.__name__
 
     def __repr__(self):
@@ -260,10 +286,10 @@ class AutoImporter (object):
         try:
             x = getattr(self._ai_mod, name)
         except AttributeError:
-            x = import_last(self._ai_fullname + '.' + name)
+            x = import_last(self._ai_name + '.' + name)
 
         if type(x) is ModuleType:
-            return AutoImporter(x, self)
+            return AutoImporter(x)
         else:
             return x
 
