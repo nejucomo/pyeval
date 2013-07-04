@@ -162,6 +162,20 @@ Finding the path to a module:
     $ pyeval 'logging.handlers._ai_path'
     '/.../handlers.py'
 
+Viewing the source of a module:
+
+    $ view $(pyeval 'p(logging.handlers._ai_path)')
+
+Pretty printing sys.path:
+
+    $ pyeval 'sys.path'
+    ...
+
+Assigning and using the python version string to a shell variable:
+
+    $ PYVER=$(pyeval 'p("%d.%d" % sys.version_info[:2])')
+    $ ls /usr/lib/python${PYVER} | wc -l
+
 """
 
 
