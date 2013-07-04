@@ -244,7 +244,7 @@ class DocExampleVerificationTests (unittest.TestCase):
 
         hb = pyeval.HelpBrowser(pyeval.MagicScope())
 
-        for topic in hb.getContainedTopics():
+        for topic in hb.getAllSubtopics():
             for (expr, args, inputText, outlines) in self._parseEntries(repr(topic)):
                 try:
                     if inputText is None:

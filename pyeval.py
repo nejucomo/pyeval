@@ -448,11 +448,11 @@ class HelpTopic (object):
         self.subtopics[name] = topic
 
     # User interface:
-    def getContainedTopics(self):
+    def getAllSubtopics(self):
         topics = [self]
 
         for (_, topic) in sorted(self.subtopics.items()):
-            topics.extend(topic.getContainedTopics())
+            topics.extend(topic.getAllSubtopics())
 
         return topics
 
@@ -470,7 +470,8 @@ class HelpTopic (object):
             }
 
         if len(self.subtopics) > 0:
-            subnames = [t.fullname for t in self.subtopics.values()]
+            subnames = [t.fullname for t in self.getAllSubtopics()]
+            subnames.pop(0)
             subtopics = '\n'.join(sorted(subnames))
 
             text = dedent("""
