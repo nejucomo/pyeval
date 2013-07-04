@@ -42,7 +42,7 @@ class DocTests (unittest.TestCase):
             match = m.group(0)
             m2 = self.InvocationRgx.match(match)
             if m2 is None:
-                entry[3].append(m.group(0).lstrip())
+                entry[3].append(m.group(0)[4:])
             else:
                 if entry is not None:
                     yield entry
@@ -64,11 +64,12 @@ class DocTests (unittest.TestCase):
                     if inputText is None:
                         inputText = ''
 
-                    expectedOut = '\n'.join(outlines) + '\n'
+                    expectedOut = '\n'.join(outlines)
 
                     # Implement wildcard matches on "...":
-                    expectedPattern = re.escape(expectedOut)
-                    expectedRgx = re.compile(expectedPattern.replace(r'\.\.\.', '.*?'))
+                    expectedRawPattern = re.escape(expectedOut)
+                    expectedPattern = expectedRawPattern.replace(r'\.\.\.', '.*?')
+                    expectedRgx = re.compile(expectedPattern, re.DOTALL)
 
                     fio = FakeIO(inputText + '\n')
 
@@ -148,7 +149,7 @@ class MagicScopeTests (unittest.TestCase):
                 self.assertEqual(rlines, self.scope['rlines'])
                 self.assertEqual(lines, self.scope['lines'])
                 self.assertIsInstance(self.scope['help'], pyeval.HelpBrowser)
-                self.assertEqual(pprint.pformat, self.scope['pf'])
+                self.assertEqual(pprint.pprint, self.scope['pp'])
                 self.assertEqual(self.args, self.scope['args'])
                 self.assertEqual(self.a0, self.scope['a0'])
                 self.assertEqual(self.a1, self.scope['a1'])

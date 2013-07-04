@@ -1,4 +1,4 @@
-CopyrightInfo = '''
+CopyrightInfo = r"""
 Copyright 2013 Nathan Wilcox
 
 This program is free software: you can redistribute it and/or modify
@@ -13,9 +13,9 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-'''
+"""
 
-Usage = '''
+Usage = r"""
 Usage: pyeval EXPR [ARG...]
 
 Evaluate EXPR with the python interpreter.  Any other ARGs are available
@@ -53,9 +53,9 @@ For more help topics, run:
     $ pyeval 'help.topics'
     ...
 
-'''
+"""
 
-MagicScopeText = '''
+MagicScopeText = r"""
 The global scope of EXPR is an instance of MagicScope, a subclass of
 dict, which:
 
@@ -82,9 +82,9 @@ Magic variables have individual help documentation, see:
     $ pyeval 'help.magic'
     ...
 
-'''
+"""
 
-MagicVariablesTemplate = '''
+MagicVariablesTemplate = r"""
 For detail on the MagicScope, run:
 
     $ pyeval 'help.MagicScope'
@@ -93,9 +93,9 @@ For detail on the MagicScope, run:
 Magic Variables:
 
 %(MAGIC_VARS_HELP)s
-'''
+"""
 
-AutoImporterText = '''
+AutoImporterText = r"""
 The AutoImporter class allows expressions to use modules directly with
 an implicit "import on demand" functionality.
 
@@ -141,11 +141,11 @@ similar to pydoc:
     $ pyeval 'help(logging)'
     ...
 
-'''
+"""
 
-ExamplesText = '''
+ExamplesText = r"""
 FIXME - write this
-'''
+"""
 
 
 import __builtin__
@@ -192,34 +192,88 @@ class MagicScope (dict):
         # Standard magic:
         @self.registerMagic
         def help():
-            """The help browser."""
+            r"""The help browser."""
             return HelpBrowser(self)
 
         @self.registerMagic
         def ri():
-            """The raw standard input as a string.  The first access calls sys.stdin.read()"""
+            r"""
+            The raw standard input as a string.  The first access calls
+            'sys.stdin.read()', so compare these:
+
+              $ echo 'foo' | pyeval 'len(sys.stdin.read())'
+              4
+
+              $ echo 'foo' | pyeval 'len(ri)'
+              4
+
+            Notice because of magic variable caching, using 'ri' multiple
+            times always results in the same input:
+
+              $ echo 'foo' | pyeval '[len(ri), ri.replace("o", "-")]'
+              [4, 'f--\n']
+            """
             return sys.stdin.read()
 
         @self.registerMagic
         def i():
-            """The stripped standard input string.  Defined as 'ri.strip()'"""
+            r"""
+            The stripped standard input string.  Defined as 'ri.strip()' so:
+
+              $ echo 'foo' | pyeval 'len(ri.strip())'
+              3
+
+              $ echo 'foo' | pyeval 'len(i)'
+              3
+            """
             return self['ri'].strip()
 
         @self.registerMagic
         def rlines():
-            """The list of raw standard input lines.  Defined as 'ri.split("\\n")'"""
+            r"""
+            The list of raw standard input lines.  Defined as 'ri.split("\\n")'.
+            """
             return self['ri'].split('\n')
 
         @self.registerMagic
         def lines():
-            """The list of stripped standard input lines.  Defined as '[ l.strip() for l in self['rlines'] ]'"""
+            r"""
+            The list of stripped standard input lines.  Defined as:
+            '[ l.strip() for l in self['rlines'] ]'
+            """
             return [ l.strip() for l in self['rlines'] ]
 
         @self.registerMagic
-        def pf():
-            """An alias to pprint.pformat."""
-            return pprint.pformat
+        def pp():
+            r"""
+            An alias to pprint.pprint.  This is useful when you want to explicitly
+            see None, which the default display hook elides:
 
+              $ pyeval '{}.get("monkey")'
+
+              $ pyeval 'pp({}.get("monkey"))'
+              None
+            """
+            return pprint.pprint
+
+        @self.registerMagic
+        def p():
+            r"""
+            A wrapper around the print statement.  Use this if you want
+            to avoid pretty printed results:
+
+              $ pyeval 'range(123)'
+              [0,
+               1,
+               ...
+
+              $ pyeval 'p(range(123))'
+              [0, 1, ...
+            """
+            def printFunc(x):
+                r"""print the argument."""
+                print x
+            return printFunc
 
     # Explicit magic interface:
     def registerMagic(self, f, name=None):
@@ -324,7 +378,25 @@ class HelpBrowser (HelpTopic):
             'examples': HelpTopic(ExamplesText),
             }
 
-        magiclist = [ '%s\n- %s' % t for t in scope.getMagicDocs() ]
+        magiclist = []
+
+        for (name, doc) in scope.getMagicDocs():
+            doclines = doc.split('\n')
+
+            while doclines[0] == '':
+                doclines.pop(0)
+
+            firstline = doclines[0]
+
+            indent = len(firstline) - len(firstline.lstrip())
+
+            dedentedlines = []
+            for docline in doclines:
+                assert docline == '' or docline[:indent].strip() == '', `name, docline`
+                dedentedlines.append(docline[indent:])
+
+            magiclist.append('%s:\n  %s' % (name, '\n  '.join(dedentedlines).rstrip()))
+
         self.topicsdict['magic'] = HelpTopic(
             MagicVariablesTemplate % {
                 'MAGIC_VARS_HELP': '\n\n'.join(magiclist),
