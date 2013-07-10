@@ -1,7 +1,13 @@
 #!/bin/bash
 
-set -x
+PYTHONPATH="./lib:$PYTHONPATH"
 
+
+echo '=== pyflakes ==='
+pyflakes ./lib/pyeval || exit $?
+
+
+echo '=== Running unittests ==='
 TRIAL=$(which trial)
 
 if ! [ -x "$TRIAL" ];
@@ -11,10 +17,15 @@ then
 fi
 
 
-PYTHONPATH="./lib:$PYTHONPATH" coverage run "$TRIAL" ./lib/pyeval
+coverage run "$TRIAL" ./lib/pyeval
 STATUS=$?
 
+echo '--- Generating Coverage Report ---'
 coverage html --include='lib/pyeval/*'
 
-exit $STATUS
+[ "$STATUS" -eq 0 ] || exit $STATUS
+
+
+echo '=== Smoke Test ==='
+exec ./bin/pyeval 'os._exit(0)'
 
