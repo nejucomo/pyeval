@@ -1,14 +1,8 @@
 import unittest
 from types import FunctionType
-import os
 
 import pyeval
 from pyeval.tests.fakeio import FakeIO
-
-
-
-# Unless there's a specific exception, all testing uses this encoding:
-os.environ['LC_TYPE'] = 'utf-8'
 
 
 
