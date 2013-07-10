@@ -47,6 +47,9 @@ class pyevalTests (unittest.TestCase):
         ai = pyeval.pyeval('faketestpackage.faketestmodule')
         self.assertIs(ModuleType, type(ai._ai_mod))
 
+    def test_unboundRaisesNameError(self):
+        self.assertRaises(NameError, pyeval.pyeval, 'this is not bound')
+
 
 
 class displayPrettyTests (unittest.TestCase):
