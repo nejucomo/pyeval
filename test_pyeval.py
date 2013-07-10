@@ -154,6 +154,26 @@ class MagicScopeTests (unittest.TestCase):
             self.assertIsInstance(k, str)
             self.assertIsInstance(v, str)
 
+    def test_magic_sh(self):
+
+        def test_output(arg, expected):
+            sh = self.scope['sh']
+
+            fio = FakeIO()
+            with fio:
+                result = sh(arg)
+
+            self.assertIsNone(result, 'sh() returned non-None: %r' % (result,))
+            self.assertEqual(expected, fio.stdout.getvalue())
+            self.assertEqual('', fio.stderr.getvalue())
+
+        test_output(None, '')
+        test_output('foo', 'foo\n')
+        test_output(42, '42\n')
+        test_output(['foo', 42], 'foo\n42\n')
+        test_output( ( x for x in ['foo', 42] ), 'foo\n42\n')
+        test_output( {'x': 'xylophone', 'y': 'yam'}, 'x\ny\n')
+
 
 
 class AutoImporterTests (unittest.TestCase):
