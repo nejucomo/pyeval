@@ -2,7 +2,16 @@
 
 set -x
 
-coverage run ./test_pyeval.py -v
+TRIAL=$(which trial)
+
+if ! [ -x "$TRIAL" ];
+then
+    echo 'Could not find trial; it is in the Twisted package.'
+    exit -1
+fi
+    
+
+PYTHONPATH="./lib:$PYTHONPATH" coverage run "$TRIAL" ./lib/pyeval
 STATUS=$?
 
 coverage html
