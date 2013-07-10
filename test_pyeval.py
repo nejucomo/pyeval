@@ -48,7 +48,7 @@ class pyevalTests (unittest.TestCase):
         self.assertIs(ModuleType, type(ai._ai_mod))
 
     def test_unboundRaisesNameError(self):
-        self.assertRaises(NameError, pyeval.pyeval, 'this is not bound')
+        self.assertRaises(NameError, pyeval.pyeval, 'BLORK_IS_NOT_BOUND')
 
 
 
