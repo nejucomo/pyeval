@@ -143,20 +143,20 @@ class MagicScope (dict):
         @self.registerMagic
         def ri():
             r"""
-            The raw standard input as a string.  The first access calls
-            'sys.stdin.read()', so compare these:
+              The raw standard input as a string.  The first access calls
+              'sys.stdin.read()', so compare these:
 
-              $ echo 'foo' | pyeval 'len(sys.stdin.read())'
-              4
+                $ echo 'foo' | pyeval 'len(sys.stdin.read())'
+                4
 
-              $ echo 'foo' | pyeval 'len(ri)'
-              4
+                $ echo 'foo' | pyeval 'len(ri)'
+                4
 
-            Notice because of magic variable caching, using 'ri' multiple
-            times always results in the same input:
+              Notice because of magic variable caching, using 'ri' multiple times
+              always results in the same input:
 
-              $ echo 'foo' | pyeval '[len(ri), ri.replace("o", "-")]'
-              [4, 'f--\n']
+                $ echo 'foo' | pyeval '[len(ri), ri.replace("o", "-")]'
+                [4, 'f--\n']
             """
             return sys.stdin.read()
 
