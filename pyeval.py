@@ -57,6 +57,7 @@ import os
 import sys
 import pprint
 from types import ModuleType
+from functools import wraps
 
 
 
@@ -196,8 +197,8 @@ class MagicScope (dict):
             """
             return ( l.strip() for l in sys.stdin )
 
-        @self.registerMagic
-        def pp():
+        @self.registerMagicFunction
+        def pp(*a, **kw):
             r"""
             An alias to pprint.pprint.  This is useful when you want to explicitly
             see None, which the default display hook elides:
@@ -207,10 +208,10 @@ class MagicScope (dict):
               $ pyeval 'pp({}.get("monkey"))'
               None
             """
-            return pprint.pprint
+            pprint.pprint(*a, **kw)
 
-        @self.registerMagic
-        def p():
+        @self.registerMagicFunction
+        def p(x):
             r"""
             A wrapper around the print statement.  Use this if you want
             to avoid pretty printed results:
@@ -243,17 +244,13 @@ class MagicScope (dict):
               ...
             """
 
-            def printFunc(x):
-                r"""print the argument."""
-                if type(x) is unicode:
-                    x = x.encode(getEncoding())
+            if type(x) is unicode:
+                x = x.encode(getEncoding())
 
-                print x
+            print x
 
-            return printFunc
-
-        @self.registerMagic
-        def sh():
+        @self.registerMagicFunction
+        def sh(obj):
             r"""
             Display the argument in a "shell friendly manner":
 
@@ -281,21 +278,18 @@ class MagicScope (dict):
               food
               fool
             """
-            def sh(obj):
-                if obj is None:
-                    return
+            if obj is None:
+                return
 
-                it = [obj]
-                if type(obj) not in (str, unicode):
-                    try:
-                        it = iter(obj)
-                    except TypeError:
-                        pass
+            it = [obj]
+            if type(obj) not in (str, unicode):
+                try:
+                    it = iter(obj)
+                except TypeError:
+                    pass
 
-                for elem in it:
-                    self['p'](unicode(elem))
-
-            return sh
+            for elem in it:
+                self['p'](unicode(elem))
 
 
     # Explicit magic interface:
@@ -306,6 +300,15 @@ class MagicScope (dict):
 
         self.pop(name, None) # Override any previous definitions.
         self._magic[name] = f
+
+
+    def registerMagicFunction(self, f):
+
+        @wraps(f)
+        def magicWrapper():
+            return f
+
+        self.registerMagic(magicWrapper)
 
 
     def registerArgsMagic(self, argStrs):

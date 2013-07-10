@@ -125,7 +125,6 @@ class MagicScopeTests (unittest.TestCase):
                 self.assertEqual(rlines, self.scope['rlines'])
                 self.assertEqual(lines, self.scope['lines'])
                 self.assertIsInstance(self.scope['help'], pyeval.HelpBrowser)
-                self.assertEqual(pprint.pprint, self.scope['pp'])
                 self.assertEqual(self.args, self.scope['args'])
                 self.assertEqual(self.a0, self.scope['a0'])
                 self.assertEqual(self.a1, self.scope['a1'])
