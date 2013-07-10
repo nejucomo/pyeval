@@ -3,9 +3,9 @@ import re
 import unittest
 
 from pyeval.autoimporter import AutoImporter
+from pyeval.eval import buildStandardMagicScope
 from pyeval.help import HelpBrowser
 from pyeval.indentation import dedent
-from pyeval.magic.scope import MagicScope
 from pyeval.main import main
 from pyeval.tests.fakeio import FakeIO
 
@@ -14,17 +14,16 @@ from pyeval.tests.fakeio import FakeIO
 class HelpBrowserTests (unittest.TestCase):
     def setUp(self):
         self.delegateCalls = []
-        self.help = HelpBrowser(MagicScope(), self.delegateCalls.append)
+        self.help = HelpBrowser(buildStandardMagicScope([]), self.delegateCalls.append)
 
     def test___repr__(self):
         self.assertNotEqual(-1, repr(self.help).find(dedent(self.help.HelpText)))
         self.assertEqual([], self.delegateCalls)
 
     def test_autoImporter(self):
-        magic = MagicScope()
-        ai = magic['sys']
-        self.assertIsInstance(ai, AutoImporter)
-        self.help(ai)
+        proxy = self.help._scope['sys']
+        self.assertIsInstance(proxy, AutoImporter.Proxy)
+        self.help(proxy)
         self.assertEqual([sys], self.delegateCalls)
 
 
@@ -66,7 +65,7 @@ class DocExampleVerificationTests (unittest.TestCase):
 
     def test_docs(self):
 
-        hb = HelpBrowser(MagicScope())
+        hb = HelpBrowser(buildStandardMagicScope([]))
 
         count = 0
 

@@ -1,54 +1,90 @@
-__all__ = ['AutoImporter', 'importLast']
+__all__ = ['AutoImporter']
 
 
 from types import ModuleType
+from weakref import WeakKeyDictionary
 
-
-
-def importLast(modpath):
-    mod = __import__(modpath)
-    for name in modpath.split('.')[1:]:
-        mod = getattr(mod, name)
-    return mod
 
 
 class AutoImporter (object):
-    def __init__(self, mod):
-        assert type(mod) is ModuleType, `mod`
 
-        self._ai_mod = mod
+    class Proxy (object):
+        pass # BaseClass exposed so client code can use isinstance(x, AutoImport.Proxy)
 
-        try:
-            path = mod.__file__
-        except AttributeError:
-            self._ai_path = None
-        else:
-            if path.endswith('.pyc'):
-                path = path[:-1]
+    class ModInfo (object):
+        def __init__(self, mod):
+            self.mod = mod
 
-            self._ai_path = path
+        @property
+        def name(self):
+            return self.mod.__name__
 
-
-    @property
-    def _ai_name(self):
-        return self._ai_mod.__name__
-
-    def __repr__(self):
-        modrepr = repr(self._ai_mod)
-        assert modrepr.startswith('<') and modrepr.endswith('>'), modrepr
-        return '<%s for %s>' % (self.__class__.__name__, modrepr[1:-1])
-
-    def __getattr__(self, name):
-        try:
-            x = getattr(self._ai_mod, name)
-        except AttributeError, outerError:
+        @property
+        def path(self):
             try:
-                x = importLast(self._ai_name + '.' + name)
-            except ImportError:
-                raise outerError
+                path = self.mod.__file__
+            except AttributeError:
+                return None
+            else:
+                if path.endswith('.pyc'):
+                    path = path[:-1]
 
-        if type(x) is ModuleType:
-            return AutoImporter(x)
+                return path
+
+
+    def __init__(self):
+        self._proxyInfo = WeakKeyDictionary()
+
+    def proxyImport(self, name):
+
+        mod = __import__(name)
+        for name in name.split('.')[1:]:
+            mod = getattr(mod, name)
+
+        return self._proxyWrap(mod)
+
+    def mod(self, proxy):
+        return self._getInfo(proxy).mod
+
+    def name(self, proxy):
+        return self._getInfo(proxy).name
+
+    def path(self, proxy):
+        return self._getInfo(proxy).path
+
+    # Private:
+    def _getInfo(self, proxy):
+        if isinstance(proxy, self.Proxy):
+            return self._proxyInfo[proxy]
         else:
-            return x
+            raise TypeError('Expected a %s.Proxy; got %r' % (type(self).__name__, proxy))
 
+    def _proxyWrap(self, mod):
+        # Bound for the closure of SubProxy to keep SubProxy instances attribute-free:
+        ai = self
+        modinfo = ai.ModInfo(mod)
+
+        class BoundProxy (ai.Proxy):
+            def __repr__(_):
+                modrepr = repr(mod)
+                assert modrepr.startswith('<') and modrepr.endswith('>'), modrepr
+                return '<%s proxy for %s>' % (type(ai).__name__, modrepr[1:-1])
+
+            def __getattribute__(_, name):
+                try:
+                    x = getattr(mod, name)
+                except AttributeError, outerError:
+                    try:
+                        x = ai.proxyImport(modinfo.name + '.' + name)
+                    except ImportError:
+                        raise outerError
+
+                if type(x) is ModuleType:
+                    return ai._proxyWrap(x)
+                else:
+                    return x
+
+        proxy = BoundProxy()
+        ai._proxyInfo[proxy] = modinfo
+
+        return proxy

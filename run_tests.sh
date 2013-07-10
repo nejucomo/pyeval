@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PYTHONPATH="./lib:$PYTHONPATH"
+PYTHONPATH=".:./lib:$PYTHONPATH"
 
 
 echo '=== pyflakes ==='

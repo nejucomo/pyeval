@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-__all__ = ['MagicScope', 'fallthroughDefault']
+__all__ = ['MagicScope']
 
 
 import __builtin__
@@ -9,21 +9,13 @@ import pprint
 from functools import wraps
 
 from pyeval import display
-from pyeval.autoimporter import AutoImporter, importLast
 from pyeval.help import HelpBrowser
 
 
 
-def fallthroughDefault(key):
-    try:
-        return AutoImporter(importLast(key))
-    except ImportError:
-        raise NameError(key)
-
-
-
 class MagicScope (dict):
-    def __init__(self, fallthrough=fallthroughDefault):
+    def __init__(self, fallthrough):
+        assert callable(fallthrough)
 
         self._fallthrough = fallthrough
         self._magic = {}
@@ -232,7 +224,10 @@ class MagicScope (dict):
             return dict.__getitem__(self, key)
         except KeyError:
             if method is None:
-                return self._fallthrough(key)
+                try:
+                    return self._fallthrough(key)
+                except Exception: # Dangerous!
+                    raise NameError(key)
             else:
                 value = self[key] = method()
                 return value

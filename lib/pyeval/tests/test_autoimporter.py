@@ -22,7 +22,7 @@ class AutoImporterTests (unittest.TestCase):
     def test___repr__(self):
         for proxy in self.proxies:
             r = repr(proxy)
-            self.assertNotEqual(-1, r.find('AutoImporter.Proxy'))
+            self.assertNotEqual(-1, r.find('AutoImporter proxy'))
 
         self.assertNotEqual(-1, repr(self.parent).find('logging'))
         self.assertNotEqual(-1, repr(self.child).find('logging.handlers'))
@@ -50,8 +50,8 @@ class AutoImporterTests (unittest.TestCase):
 
     def test_attributeTransparency(self):
         for proxy in self.proxies:
-            # Proxies have no vars:
-            self.assertEqual({}, vars(proxy))
+            # vars keys are identical:
+            self.assertEqual(vars(self.ai.mod(proxy)), vars(proxy))
 
             # Every attribute of mod, when retrieved through proxy is
             # the same value or a Proxy:
@@ -60,12 +60,13 @@ class AutoImporterTests (unittest.TestCase):
                 value = getattr(mod, name)
                 proxied = getattr(proxy, name)
                 if not isinstance(proxied, AutoImporter.Proxy):
-                    self.assertIs(value, proxied)
+                    self.assertIs(value, proxied,
+                                  'Attribute %r: %r is not %r' % (name, proxied, value))
 
     def test_AttributeError(self):
         for proxy in self.proxies:
             try:
-                self.assertRaises(AttributeError, proxy.__getattr__, 'WOMBATS!')
+                self.assertRaises(AttributeError, getattr, proxy, 'WOMBATS!')
             except ImportError:
                 self.fail('A missing attribute on an AutoImporter resulted in an ImportError.')
 

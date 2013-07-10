@@ -128,6 +128,7 @@ class HelpBrowser (HelpTopic):
         """The constructor allows dependency injection for unittests."""
 
         self._scope = scope
+        self._ai = scope['ai']
         self._delegate = delegate
 
         HelpTopic.__init__(self, None)
@@ -141,8 +142,8 @@ class HelpBrowser (HelpTopic):
         return self.name
 
     def __call__(self, obj):
-        # BUG: Replace this getattr hack with an explicit API through self._scope:
-        obj = getattr(obj, '_ai_mod', obj)
+        if isinstance(obj, self._ai.Proxy):
+            obj = self._ai.mod(obj)
 
         self._delegate(obj)
 
@@ -194,50 +195,36 @@ class AutoImporterHelp (HelpTopic):
       The AutoImporter class allows expressions to use modules directly with
       an implicit "import on demand" functionality.
 
-      It accomplishes this by acting as a proxy to an underlying python module,
-      and delegating attribute lookups to that module.  For example, this works:
+      It accomplishes this by constructing a proxy object to an underlying
+      python module which delegates attribute lookups to that module.
+      For example, this works:
 
           $ pyeval 'math.pi'
           3.141592653589793
 
-      If any attribute lookup fails, it attempts to import a submodule, and
-      if that is successful, it wraps that submodule in a new AutoImporter.
+      If any attribute lookup fails, the proxy attempts to use
+      the AutoImporter to proxy a submodule, and if that fails, an
+      AttributeError is raised.
 
       Unfortunately this approach is not completely transparent: references to
-      what look like python modules are actually to an instance of AutoImporter
-      which proxies attribute access to the module.
+      what look like python modules are actually to an instance of
+      AutoImporter.Proxy which proxies attribute access to the module.
 
       You can see this by inspecting the repr of a module expression:
 
           $ pyeval 'logging.config'
-          <AutoImporter for module '...'>
+          <AutoImporter proxy for module '...config...'>
 
-      An AutoImporter instance has the following attributes:
+      The AutoImporter class provides methods to lookup information
+      about the original module from a proxy.  Compare the following
+      example to the previous:
 
-      _ai_mod
-        The original module which is being proxied.
+          $ pyeval 'ai.mod(logging.config)'
+          <module '...config...'>
 
-      _ai_path
-        A path string to the source of the module.  This is useful for testing
-        your PYTHONPATH:
+      For more details on these methods, run:
 
-          $ pyeval 'pyeval._ai_path'
-          '/.../pyeval/__init__.py'
-
-      _ai_name
-        The full module name of the module.  For example:
-
-          $ pyeval 'logging.config._ai_name'
-          'logging.config'
-
-      The 'help' HelpBrowser is aware of AutoImporters, so pyeval can be used
-      similar to pydoc:
-
-          $ pyeval 'help(logging)'
-          ...
-
-          $ pydoc 'logging'
-          ...
+          $ pyeval 'help(ai)'
     """
 
 
@@ -254,12 +241,12 @@ class examplesHelp (HelpTopic):
 
       Finding the path to a module:
 
-          $ pyeval 'logging.handlers._ai_path'
+          $ pyeval 'ai.path(logging.handlers)'
           '/.../handlers.py'
 
       Viewing the source of a module:
 
-          $ view $(pyeval 'p(logging.handlers._ai_path)')
+          $ view $(pyeval 'p(ai.path(logging.handlers))')
 
       Pretty printing sys.path:
 
