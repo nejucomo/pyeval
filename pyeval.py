@@ -118,9 +118,16 @@ def indent(text, amount=2):
     return indent + separator.join(text.rstrip().split('\n')) + '\n'
 
 
+def fallthroughDefault(key):
+    try:
+        return AutoImporter(import_last(key))
+    except ImportError:
+        raise NameError(key)
+
+
 
 class MagicScope (dict):
-    def __init__(self, fallthrough=lambda key: AutoImporter(import_last(key))):
+    def __init__(self, fallthrough=fallthroughDefault):
 
         self._fallthrough = fallthrough
         self._magic = {}
