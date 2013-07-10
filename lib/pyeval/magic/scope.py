@@ -51,3 +51,34 @@ class MagicScope (dict):
             else:
                 value = self[key] = method()
                 return value
+
+
+    def __len__(self):
+        return len(self.keys())
+
+
+    def iterkeys(self):
+        visited = set()
+
+        for key in self._magic.iterkeys():
+            visited.add(key)
+            yield key
+
+        for key in dict.iterkeys(self):
+            if key not in visited:
+                yield key
+
+    def iteritems(self):
+        return ( (k, self[k]) for k in self.iterkeys() )
+
+    def itervalues(self):
+        return ( v for (k, v) in self.iteritems() )
+
+    def keys(self):
+        return list(self.iterkeys())
+
+    def items(self):
+        return list(self.iteritems())
+
+    def values(self):
+        return list(self.itervalues())
