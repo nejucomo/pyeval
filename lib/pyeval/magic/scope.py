@@ -198,20 +198,6 @@ class MagicScope (dict):
         self.registerMagic(magicWrapper)
 
 
-    def registerArgsMagic(self, argStrs):
-        @self.registerMagic
-        def args():
-            """The list of ARG strings after EXPR."""
-            return argStrs
-
-        for (i, arg) in enumerate(argStrs):
-            def argN(cachedArg=arg):
-                """A positional ARG given after EXPR."""
-                return cachedArg
-
-            self.registerMagic(argN, 'a' + str(i))
-
-
     def getMagicDocs(self):
         return sorted( [ (k, f.__doc__) for (k, f) in self._magic.iteritems() ] )
 

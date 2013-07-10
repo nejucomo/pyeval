@@ -12,9 +12,6 @@ class MagicScopeTests (unittest.TestCase):
         self.caught = []
         self.scope = MagicScope(self.caught.append)
 
-        self.args = [self.a0, self.a1] = ['foo', 'bar']
-        self.scope.registerArgsMagic(self.args)
-
     def test_inputCaching(self):
         rawin = 'foo\nbar\n\n'
         stripin = rawin.strip()
@@ -28,9 +25,6 @@ class MagicScopeTests (unittest.TestCase):
                 self.assertEqual(rlines, self.scope['rlines'])
                 self.assertEqual(lines, self.scope['lines'])
                 self.assertIsInstance(self.scope['help'], HelpBrowser)
-                self.assertEqual(self.args, self.scope['args'])
-                self.assertEqual(self.a0, self.scope['a0'])
-                self.assertEqual(self.a1, self.scope['a1'])
 
     def test_fallthrough(self):
         key = '6ff25ffc'
