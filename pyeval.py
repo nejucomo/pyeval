@@ -482,7 +482,7 @@ class AutoImporterHelp (HelpTopic):
       You can see this by inspecting the repr of a module expression:
 
           $ pyeval 'logging.config'
-          <AutoImporter of <module '...'>>
+          <AutoImporter for module '...'>
 
       An AutoImporter instance has the following attributes:
 
