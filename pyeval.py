@@ -191,9 +191,10 @@ class MagicScope (dict):
         @self.registerMagic
         def ilines():
             r"""
-            A line iterator over stdin.  Defined as: iter(sys.stdin)
+            A line iterator over stripped lines from stdin.  Defined as:
+            '( l.strip() for l in sys.stdin )'
             """
-            return iter(sys.stdin)
+            return ( l.strip() for l in sys.stdin )
 
         @self.registerMagic
         def pp():
