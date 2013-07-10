@@ -1,6 +1,6 @@
 import unittest
 
-from pyeval.autoimporter import AutoImporter, import_last
+from pyeval.autoimporter import AutoImporter, importLast
 
 
 
@@ -11,7 +11,7 @@ class AutoImporterTests (unittest.TestCase):
         from logging import handlers
         self.handlers = handlers
 
-        self.parent = AutoImporter(import_last('logging'))
+        self.parent = AutoImporter(importLast('logging'))
         self.child = self.parent.handlers
 
     def test___repr__(self):

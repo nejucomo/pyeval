@@ -9,14 +9,14 @@ import pprint
 from functools import wraps
 
 from pyeval import display
-from pyeval.autoimporter import AutoImporter, import_last
+from pyeval.autoimporter import AutoImporter, importLast
 from pyeval.help import HelpBrowser
 
 
 
 def fallthroughDefault(key):
     try:
-        return AutoImporter(import_last(key))
+        return AutoImporter(importLast(key))
     except ImportError:
         raise NameError(key)
 

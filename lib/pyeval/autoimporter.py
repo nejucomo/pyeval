@@ -1,11 +1,11 @@
-__all__ = ['AutoImporter', 'import_last']
+__all__ = ['AutoImporter', 'importLast']
 
 
 from types import ModuleType
 
 
 
-def import_last(modpath):
+def importLast(modpath):
     mod = __import__(modpath)
     for name in modpath.split('.')[1:]:
         mod = getattr(mod, name)
@@ -43,7 +43,7 @@ class AutoImporter (object):
             x = getattr(self._ai_mod, name)
         except AttributeError, outerError:
             try:
-                x = import_last(self._ai_name + '.' + name)
+                x = importLast(self._ai_name + '.' + name)
             except ImportError:
                 raise outerError
 
