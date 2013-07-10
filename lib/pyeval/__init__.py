@@ -11,13 +11,11 @@ __all__ = [
     'import_last',
     ]
 
-from pyeval.everything import \
-    AutoImporter, \
-    HelpBrowser, \
-    MagicScope, \
-    pyeval, \
-    import_last
+from pyeval.everything import pyeval
 
+from pyeval.help import HelpBrowser
+from pyeval.magic.scope import MagicScope
+from pyeval.autoimporter import AutoImporter, import_last
 from pyeval.copyright import Copyright
 from pyeval.display import displayPretty
 from pyeval.main import main
