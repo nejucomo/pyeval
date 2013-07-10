@@ -5,9 +5,10 @@ PYTHONPATH="./lib:$PYTHONPATH"
 
 echo '=== pyflakes ==='
 pyflakes ./lib/pyeval || exit $?
+echo 'pyflakes completed.'
 
 
-echo '=== Running unittests ==='
+echo -e '\n=== Running unittests ==='
 TRIAL=$(which trial)
 
 if ! [ -x "$TRIAL" ];
@@ -20,12 +21,23 @@ fi
 coverage run "$TRIAL" ./lib/pyeval
 STATUS=$?
 
-echo '--- Generating Coverage Report ---'
+echo -e '\n--- Generating Coverage Report ---'
 coverage html --include='lib/pyeval/*'
+
+echo 'Report generated.'
 
 [ "$STATUS" -eq 0 ] || exit $STATUS
 
 
-echo '=== Smoke Test ==='
-exec ./bin/pyeval 'os._exit(0)'
+echo -e '\n=== Smoke Test ==='
+./bin/pyeval 'os._exit(0)'
+STATUS=$?
 
+if [ "$STATUS" -eq 0 ]
+then
+    echo 'Smoke-test Succeeded.'
+else
+    echo 'Smoke-test FAILED.'
+fi
+
+exit "$STATUS"
