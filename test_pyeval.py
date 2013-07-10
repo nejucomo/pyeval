@@ -236,7 +236,8 @@ class DocExampleVerificationTests (unittest.TestCase):
 
     IndentRgx = re.compile(r'^    .*?$', re.MULTILINE)
     InvocationRgx = re.compile(r"^    \$")
-    PyevalInvocationRgx = re.compile(r"^    \$ (echo '(?P<INPUT>.*?)' \| )?pyeval '(?P<EXPR>.*?)' ?(?P<ARGS>.*?)$")
+    PyevalInvocationRgx = re.compile(
+        r"^    \$ (echo (?P<EFLAG>-e )?'(?P<INPUT>.*?)' \| )?pyeval '(?P<EXPR>.*?)' ?(?P<ARGS>.*?)$")
 
 
     def _parseEntries(self, text):
@@ -253,7 +254,11 @@ class DocExampleVerificationTests (unittest.TestCase):
                 m3 = self.PyevalInvocationRgx.match(match)
                 if m3 is not None:
                     args = m3.group('ARGS').split()
-                    entry = (m3.group('EXPR'), args, m3.group('INPUT'), [])
+                    teststdin = m3.group('INPUT')
+                    if teststdin is not None:
+                        if m3.group('EFLAG') is not None:
+                            teststdin = teststdin.replace('\\n', '\n')
+                    entry = (m3.group('EXPR'), args, teststdin, [])
                 else:
                     # This is an non-tested example, such as a non-call to pyeval.
                     entry = (None, None, None, [])
