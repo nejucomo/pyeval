@@ -79,30 +79,6 @@ class displayPrettyTests (unittest.TestCase):
 
 
 
-class indentationTests (unittest.TestCase):
-
-    def test_dedentAndIndent(self):
-        x = """
-          cheer:
-            whoop!
-          effect:
-             wham!
-
-        """
-
-        expectedDedent = 'cheer:\n  whoop!\neffect:\n   wham!\n'
-
-        dedented = pyeval.dedent(x)
-
-        self.assertEqual(expectedDedent, dedented)
-        self.assertEqual(dedented, pyeval.indent(dedented, 0))
-
-        expectedIndent = x[1:].rstrip() + '\n'
-
-        self.assertEqual(expectedIndent, pyeval.indent(dedented, 10))
-
-
-
 class MagicScopeTests (unittest.TestCase):
     def setUp(self):
         self.caught = []
