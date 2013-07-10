@@ -44,6 +44,15 @@ class AutoImporterTests (unittest.TestCase):
         self.assertEqual(getsrc(logging), self.ai.path(self.parent))
         self.assertEqual(getsrc(logging.handlers), self.ai.path(self.child))
 
+    def test_pathNone(self):
+        self.assertIsNone(self.ai.path(self.ai.proxyImport('sys')))
+
+    def test_pathDotSO(self):
+        self.assertRegexpMatches(self.ai.path(self.ai.proxyImport('_struct')), '\.so$')
+
+    def test_nameTypeError(self):
+        self.assertRaises(TypeError, self.ai.name, 42)
+
     def test_attr(self):
         self.assertIs(logging.basicConfig, self.parent.basicConfig)
         self.assertIs(handlers.MemoryHandler, self.child.MemoryHandler)
