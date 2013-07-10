@@ -563,7 +563,7 @@ class AutoImporterHelp (HelpTopic):
         your PYTHONPATH:
 
           $ pyeval 'pyeval._ai_path'
-          '/.../pyeval.py'
+          '/.../pyeval/__init__.py'
 
       _ai_name
         The full module name of the module.  For example:

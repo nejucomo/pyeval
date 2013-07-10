@@ -3,6 +3,9 @@ __all__ = [
     'HelpBrowser',
     'MagicScope',
     'Usage',
+    'displayPretty',
+    'dedent',
+    'indent',
     'main',
     'pyeval',
     'import_last',
@@ -13,6 +16,9 @@ from pyeval.everything import \
     HelpBrowser, \
     MagicScope, \
     Usage, \
+    dedent, \
+    indent, \
+    displayPretty, \
     main, \
     pyeval, \
     import_last
