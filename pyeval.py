@@ -301,7 +301,9 @@ class AutoImporter (object):
         return self._ai_mod.__name__
 
     def __repr__(self):
-        return '<%s of %r>' % (self.__class__.__name__, self._ai_mod)
+        modrepr = repr(self._ai_mod)
+        assert modrepr.startswith('<') and modrepr.endswith('>'), modrepr
+        return '<%s for %s>' % (self.__class__.__name__, modrepr[1:-1])
 
     def __getattr__(self, name):
         try:
