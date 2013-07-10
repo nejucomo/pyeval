@@ -1,4 +1,6 @@
-2013-07-10 - Version '0.1.6-dev'
+2013-07-10 - Version '0.2.dev'
+
+ - Changed version scheme to follow PEP 440.
 
  - Changed default display behavior to be similar to the interactive
    interpreter, except using pprint for non-None.
