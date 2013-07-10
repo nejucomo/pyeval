@@ -296,8 +296,6 @@ class DocExampleVerificationTests (unittest.TestCase):
                                )
                     raise
 
-        self.assertEqual(26, count)
-
 
 
 class FakeIO (object):
