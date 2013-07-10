@@ -2,7 +2,11 @@ import sys
 import re
 import unittest
 
-import pyeval
+from pyeval.autoimporter import AutoImporter
+from pyeval.help import HelpBrowser
+from pyeval.indentation import dedent
+from pyeval.magic.scope import MagicScope
+from pyeval.main import main
 from pyeval.tests.fakeio import FakeIO
 
 
@@ -10,16 +14,16 @@ from pyeval.tests.fakeio import FakeIO
 class HelpBrowserTests (unittest.TestCase):
     def setUp(self):
         self.delegateCalls = []
-        self.help = pyeval.HelpBrowser(pyeval.MagicScope(), self.delegateCalls.append)
+        self.help = HelpBrowser(MagicScope(), self.delegateCalls.append)
 
     def test___repr__(self):
-        self.assertNotEqual(-1, repr(self.help).find(pyeval.dedent(self.help.HelpText)))
+        self.assertNotEqual(-1, repr(self.help).find(dedent(self.help.HelpText)))
         self.assertEqual([], self.delegateCalls)
 
     def test_autoImporter(self):
-        magic = pyeval.MagicScope()
+        magic = MagicScope()
         ai = magic['sys']
-        self.assertIsInstance(ai, pyeval.AutoImporter)
+        self.assertIsInstance(ai, AutoImporter)
         self.help(ai)
         self.assertEqual([sys], self.delegateCalls)
 
@@ -62,7 +66,7 @@ class DocExampleVerificationTests (unittest.TestCase):
 
     def test_docs(self):
 
-        hb = pyeval.HelpBrowser(pyeval.MagicScope())
+        hb = HelpBrowser(MagicScope())
 
         count = 0
 
@@ -83,7 +87,7 @@ class DocExampleVerificationTests (unittest.TestCase):
                     fio = FakeIO(inputText + '\n')
 
                     with fio:
-                        pyeval.main([expr] + args)
+                        main([expr] + args)
 
                     self.assertRegexpMatches(fio.fakeout.getvalue(), expectedRgx)
                     self.assertEqual('', fio.fakeerr.getvalue())

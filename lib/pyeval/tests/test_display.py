@@ -2,7 +2,7 @@ import unittest
 import pprint
 from cStringIO import StringIO
 
-import pyeval
+from pyeval.display import displayPretty
 from pyeval.tests.fakeio import FakeIO
 
 
@@ -13,7 +13,7 @@ class displayPrettyTests (unittest.TestCase):
         fio = FakeIO()
 
         with fio:
-            pyeval.displayPretty(None)
+            displayPretty(None)
 
         self.assertEqual('', fio.fakeout.getvalue())
         self.assertEqual('', fio.fakeerr.getvalue())
@@ -27,7 +27,7 @@ class displayPrettyTests (unittest.TestCase):
             fio = FakeIO()
 
             with fio:
-                pyeval.displayPretty(value)
+                displayPretty(value)
 
             self.assertEqual(expected, fio.fakeout.getvalue())
             self.assertEqual('', fio.fakeerr.getvalue())

@@ -1,7 +1,8 @@
 import unittest
 from types import FunctionType
 
-import pyeval
+from pyeval.help import HelpBrowser
+from pyeval.magic.scope import MagicScope
 from pyeval.tests.fakeio import FakeIO
 
 
@@ -9,7 +10,7 @@ from pyeval.tests.fakeio import FakeIO
 class MagicScopeTests (unittest.TestCase):
     def setUp(self):
         self.caught = []
-        self.scope = pyeval.MagicScope(self.caught.append)
+        self.scope = MagicScope(self.caught.append)
 
         self.args = [self.a0, self.a1] = ['foo', 'bar']
         self.scope.registerArgsMagic(self.args)
@@ -26,7 +27,7 @@ class MagicScopeTests (unittest.TestCase):
                 self.assertEqual(stripin, self.scope['i'])
                 self.assertEqual(rlines, self.scope['rlines'])
                 self.assertEqual(lines, self.scope['lines'])
-                self.assertIsInstance(self.scope['help'], pyeval.HelpBrowser)
+                self.assertIsInstance(self.scope['help'], HelpBrowser)
                 self.assertEqual(self.args, self.scope['args'])
                 self.assertEqual(self.a0, self.scope['a0'])
                 self.assertEqual(self.a1, self.scope['a1'])
