@@ -1,7 +1,5 @@
 import unittest
 from types import ModuleType, FunctionType
-import pprint
-from cStringIO import StringIO
 import math
 import os
 
@@ -46,34 +44,6 @@ class pyevalTests (unittest.TestCase):
 
     def test_unboundRaisesNameError(self):
         self.assertRaises(NameError, pyeval.pyeval, 'BLORK_IS_NOT_BOUND')
-
-
-
-class displayPrettyTests (unittest.TestCase):
-    """displayPretty should behave like standard sys.displayhook, except pformat is used."""
-
-    def test_displayNone(self):
-        fio = FakeIO()
-
-        with fio:
-            pyeval.displayPretty(None)
-
-        self.assertEqual('', fio.fakeout.getvalue())
-        self.assertEqual('', fio.fakeerr.getvalue())
-
-    def test_displayValues(self):
-        for value in [42, "banana", range(1024), vars()]:
-            f = StringIO()
-            pprint.pprint(value, f)
-            expected = f.getvalue()
-
-            fio = FakeIO()
-
-            with fio:
-                pyeval.displayPretty(value)
-
-            self.assertEqual(expected, fio.fakeout.getvalue())
-            self.assertEqual('', fio.fakeerr.getvalue())
 
 
 
