@@ -373,8 +373,11 @@ class AutoImporter (object):
     def __getattr__(self, name):
         try:
             x = getattr(self._ai_mod, name)
-        except AttributeError:
-            x = import_last(self._ai_name + '.' + name)
+        except AttributeError, outerError:
+            try:
+                x = import_last(self._ai_name + '.' + name)
+            except ImportError:
+                raise outerError
 
         if type(x) is ModuleType:
             return AutoImporter(x)
