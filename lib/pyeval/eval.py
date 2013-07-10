@@ -26,29 +26,29 @@ def buildStandardMagicScope(argStrs, autoimporter=None):
     scope.update(vars(__builtin__))
 
     @scope.registerMagic
-    def ai():
+    def ai(_):
         """The AutoImporter instance associate with the MagicScope."""
         return autoimporter
 
     @scope.registerMagic
-    def args():
+    def args(_):
         """The list of ARG strings after EXPR."""
         return argStrs
 
     for (i, arg) in enumerate(argStrs):
-        def argN(cachedArg=arg):
+        def argN(_, cachedArg=arg):
             """A positional ARG given after EXPR."""
             return cachedArg
 
         scope.registerMagic(argN, 'a' + str(i))
 
     @scope.registerMagic
-    def help():
+    def help(scope):
         r"""The help browser."""
         return HelpBrowser(scope)
 
     @scope.registerMagic
-    def ri():
+    def ri(_):
         r"""
           The raw standard input as a string.  The first access calls
           'sys.stdin.read()', so compare these:
@@ -68,7 +68,7 @@ def buildStandardMagicScope(argStrs, autoimporter=None):
         return sys.stdin.read()
 
     @scope.registerMagic
-    def i():
+    def i(scope):
         r"""
         The stripped standard input string.  Defined as 'ri.strip()' so:
 
@@ -81,14 +81,14 @@ def buildStandardMagicScope(argStrs, autoimporter=None):
         return scope['ri'].strip()
 
     @scope.registerMagic
-    def rlines():
+    def rlines(scope):
         r"""
         The list of raw standard input lines.  Defined as 'ri.split("\\n")'.
         """
         return scope['ri'].split('\n')
 
     @scope.registerMagic
-    def lines():
+    def lines(scope):
         r"""
         The list of stripped standard input lines.  Defined as:
         '[ l.strip() for l in scope['rlines'] ]'
@@ -96,7 +96,7 @@ def buildStandardMagicScope(argStrs, autoimporter=None):
         return [ l.strip() for l in scope['rlines'] ]
 
     @scope.registerMagic
-    def ilines():
+    def ilines(_):
         r"""
         A line iterator over stripped lines from stdin.  Defined as:
         '( l.strip() for l in sys.stdin )'
@@ -104,7 +104,7 @@ def buildStandardMagicScope(argStrs, autoimporter=None):
         return ( l.strip() for l in sys.stdin )
 
     @scope.registerMagicFunction
-    def pp(*a, **kw):
+    def pp(_, *a, **kw):
         r"""
         An alias to pprint.pprint.  This is useful when you want to explicitly
         see None, which the default display hook elides:
@@ -117,7 +117,7 @@ def buildStandardMagicScope(argStrs, autoimporter=None):
         pprint.pprint(*a, **kw)
 
     @scope.registerMagicFunction
-    def p(x):
+    def p(_, x):
         r"""
         A wrapper around the print statement.  Use this if you want
         to avoid pretty printed results:
@@ -156,7 +156,7 @@ def buildStandardMagicScope(argStrs, autoimporter=None):
         print x
 
     @scope.registerMagicFunction
-    def sh(obj):
+    def sh(scope, obj):
         r"""
         Display the argument in a "shell friendly manner":
 

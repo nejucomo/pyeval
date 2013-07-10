@@ -20,7 +20,7 @@ class MagicScopeTests (unittest.TestCase):
 
     def test_registerMagicFunction(self):
 
-        @self.scope.registerMagicfunction
+        @self.scope.registerMagicFunction
         def f(scope, x):
             """the scope and x"""
             return (scope, x)

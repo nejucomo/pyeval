@@ -26,8 +26,11 @@ class MagicScope (dict):
     def registerMagicFunction(self, f):
 
         @wraps(f)
-        def magicWrapper():
-            return f
+        def magicWrapper(scope):
+            @wraps(f)
+            def wrapped(*a, **kw):
+                return f(scope, *a, **kw)
+            return wrapped
 
         self.registerMagic(magicWrapper)
 
@@ -49,7 +52,7 @@ class MagicScope (dict):
                 except Exception: # Dangerous!
                     raise NameError(key)
             else:
-                value = self[key] = method()
+                value = self[key] = method(self)
                 return value
 
 
