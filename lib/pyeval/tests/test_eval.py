@@ -67,7 +67,7 @@ class StandardMagicScopeTests (unittest.TestCase):
         callCount = [0]
 
         @self.scope.registerMagic
-        def x():
+        def x(scope):
             callCount[0] += 1
             return callCount[0]
 

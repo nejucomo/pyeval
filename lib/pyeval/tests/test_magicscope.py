@@ -9,6 +9,26 @@ class MagicScopeTests (unittest.TestCase):
         self.caught = []
         self.scope = MagicScope(self.caught.append)
 
+    def test_registerMagic(self):
+
+        @self.scope.registerMagic
+        def scope(scope):
+            """the scope"""
+            return scope
+
+        self.assertIs(self.scope, self.scope['scope'])
+
+    def test_registerMagicFunction(self):
+
+        @self.scope.registerMagicfunction
+        def f(scope, x):
+            """the scope and x"""
+            return (scope, x)
+
+        (scope, v) = self.scope['f'](42)
+        self.assertIs(self.scope, scope)
+        self.assertEqual(42, v)
+
     def test_fallthrough(self):
         key = '6ff25ffc'
         x = self.scope[key]
@@ -20,7 +40,7 @@ class MagicScopeTests (unittest.TestCase):
         callCount = [0]
 
         @self.scope.registerMagic
-        def x():
+        def x(scope):
             callCount[0] += 1
             return callCount[0]
 
@@ -30,11 +50,11 @@ class MagicScopeTests (unittest.TestCase):
 
     def test_getMagicDocs(self):
         @self.scope.registerMagic
-        def x(self):
+        def x(scope):
             """docs for x"""
 
         @self.scope.registerMagic
-        def y(self):
+        def y(scope):
             """docs for x"""
 
         for (k, v) in self.scope.getMagicDocs():
@@ -53,7 +73,7 @@ class MagicScopeDictInterfaceTests (unittest.TestCase):
         self.scope['x'] = 0
 
         @self.scope.registerMagic
-        def y():
+        def y(scope):
             """y docs"""
             return 1
 
