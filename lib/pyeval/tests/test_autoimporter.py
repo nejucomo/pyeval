@@ -1,49 +1,72 @@
 import unittest
 
-from pyeval.autoimporter import AutoImporter, importLast
+# These are just used to test importing:
+import logging
+from logging import handlers
+
+from pyeval.autoimporter import AutoImporter
 
 
 
 class AutoImporterTests (unittest.TestCase):
     def setUp(self):
-        import logging
-        self.logging = logging
-        from logging import handlers
-        self.handlers = handlers
-
-        self.parent = AutoImporter(importLast('logging'))
+        self.ai = AutoImporter()
+        self.parent = self.ai.proxyImport('logging')
         self.child = self.parent.handlers
+        self.proxies = [self.parent, self.child]
+
+    def test_proxyInstanceType(self):
+        for proxy in self.proxies:
+            self.assertIsInstance(proxy, AutoImporter.Proxy)
 
     def test___repr__(self):
-        r = repr(self.child)
-        self.assertNotEqual(-1, r.find('AutoImporter'))
-        self.assertNotEqual(-1, r.find('logging.handlers'))
+        for proxy in self.proxies:
+            r = repr(proxy)
+            self.assertNotEqual(-1, r.find('AutoImporter.Proxy'))
 
-    def test__ai_mod(self):
-        self.assertIs(self.logging, self.parent._ai_mod)
-        self.assertIs(self.handlers, self.child._ai_mod)
+        self.assertNotEqual(-1, repr(self.parent).find('logging'))
+        self.assertNotEqual(-1, repr(self.child).find('logging.handlers'))
 
-    def test__ai_name(self):
-        self.assertEqual('logging', self.parent._ai_name)
-        self.assertEqual('logging.handlers', self.child._ai_name)
+    def test_mod(self):
+        self.assertIs(logging, self.ai.mod(self.parent))
+        self.assertIs(handlers, self.ai.mod(self.child))
 
-    def test__ai_path(self):
+    def test_name(self):
+        self.assertEqual('logging', self.ai.name(self.parent))
+        self.assertEqual('logging.handlers', self.ai.name(self.child))
+
+    def test_path(self):
         def getsrc(m):
             path = m.__file__
             assert path.endswith('.pyc')
             return path[:-1]
 
-        self.assertEqual(getsrc(self.logging), self.parent._ai_path)
-        self.assertEqual(getsrc(self.logging.handlers), self.child._ai_path)
+        self.assertEqual(getsrc(logging), self.ai.path(self.parent))
+        self.assertEqual(getsrc(logging.handlers), self.ai.path(self.child))
 
     def test_attr(self):
-        self.assertIs(self.logging.basicConfig, self.parent.basicConfig)
-        self.assertIs(self.handlers.MemoryHandler, self.child.MemoryHandler)
+        self.assertIs(logging.basicConfig, self.parent.basicConfig)
+        self.assertIs(handlers.MemoryHandler, self.child.MemoryHandler)
+
+    def test_attributeTransparency(self):
+        for proxy in self.proxies:
+            # Proxies have no vars:
+            self.assertEqual({}, vars(proxy))
+
+            # Every attribute of mod, when retrieved through proxy is
+            # the same value or a Proxy:
+            mod = self.ai.mod(proxy)
+            for name in vars(mod).keys():
+                value = getattr(mod, name)
+                proxied = getattr(proxy, name)
+                if not isinstance(proxied, AutoImporter.Proxy):
+                    self.assertIs(value, proxied)
 
     def test_AttributeError(self):
-        try:
-            self.assertRaises(AttributeError, self.parent.__getattr__, 'WOMBATS!')
-        except ImportError:
-            self.fail('A missing attribute on an AutoImporter resulted in an ImportError.')
+        for proxy in self.proxies:
+            try:
+                self.assertRaises(AttributeError, proxy.__getattr__, 'WOMBATS!')
+            except ImportError:
+                self.fail('A missing attribute on an AutoImporter resulted in an ImportError.')
 
 
