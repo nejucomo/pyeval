@@ -219,6 +219,11 @@ class AutoImporterTests (unittest.TestCase):
         self.assertIs(self.logging.basicConfig, self.parent.basicConfig)
         self.assertIs(self.handlers.MemoryHandler, self.child.MemoryHandler)
 
+    def test_AttributeError(self):
+        try:
+            self.assertRaises(AttributeError, self.parent.__getattr__, 'WOMBATS!')
+        except ImportError:
+            self.fail('A missing attribute on an AutoImporter resulted in an ImportError.')
 
 
 class HelpBrowserTests (unittest.TestCase):
