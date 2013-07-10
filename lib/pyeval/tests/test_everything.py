@@ -13,29 +13,10 @@ os.environ['LC_TYPE'] = 'utf-8'
 
 
 
-class mainTests (unittest.TestCase):
-
-    def _test_main(self, expected, args):
-        displays = []
-        pyeval.main(args, displays.append)
-        self.assertEqual([expected], displays)
-
-    def test_a1(self):
-        self._test_main('B', ['a1', 'A', 'B', 'C'])
-
-    def test_42(self):
-        self._test_main(42, ['42', 'A', 'B', 'C'])
-
-    def test_math_pi(self):
-        self._test_main(math.pi, ['math.pi', 'A', 'B', 'C'])
-
-
-
 class pyevalTests (unittest.TestCase):
     """High-level tests of pyeval.pyeval."""
 
     def test_autoimportTopLevel(self):
-        import math
         self.assertIs(math, pyeval.pyeval('math')._ai_mod)
 
     def test_autoimportSubmodule(self):
