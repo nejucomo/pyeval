@@ -36,7 +36,7 @@ class MagicScope (dict):
         return sorted( [ (k, f.__doc__) for (k, f) in self._magic.iteritems() ] )
 
 
-    # Scope interface:
+    # dict interface:
     def __getitem__(self, key):
         method = self._magic.get(key)
 
