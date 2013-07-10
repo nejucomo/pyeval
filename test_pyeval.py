@@ -164,15 +164,15 @@ class MagicScopeTests (unittest.TestCase):
                 result = sh(arg)
 
             self.assertIsNone(result, 'sh() returned non-None: %r' % (result,))
-            self.assertEqual(expected, fio.stdout.getvalue())
-            self.assertEqual('', fio.stderr.getvalue())
+            self.assertEqual(expected, fio.fakeout.getvalue())
+            self.assertEqual('', fio.fakeerr.getvalue())
 
         test_output(None, '')
         test_output('foo', 'foo\n')
         test_output(42, '42\n')
         test_output(['foo', 42], 'foo\n42\n')
         test_output( ( x for x in ['foo', 42] ), 'foo\n42\n')
-        test_output( {'x': 'xylophone', 'y': 'yam'}, 'x\ny\n')
+        test_output( {'x': 'xylophone', 'y': 'yam'}, 'y\nx\n')
 
 
 
