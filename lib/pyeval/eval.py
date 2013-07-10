@@ -1,6 +1,14 @@
+# -*- coding: utf-8 -*-
+
 __all__ = ['pyeval', 'buildStandardMagicScope']
 
 
+import __builtin__
+import sys
+import pprint
+
+from pyeval import display
+from pyeval.help import HelpBrowser
 from pyeval.autoimporter import AutoImporter
 from pyeval.magic.scope import MagicScope
 
@@ -10,10 +18,12 @@ def pyeval(expr, *args):
     return eval(expr, {}, buildStandardMagicScope(args))
 
 
-def buildStandardMagicScope(argStrs):
-    autoimporter = AutoImporter()
+def buildStandardMagicScope(argStrs, autoimporter=None):
+    if autoimporter is None:
+        autoimporter = AutoImporter()
 
     scope = MagicScope(autoimporter.proxyImport)
+    scope.update(vars(__builtin__))
 
     @scope.registerMagic
     def ai():
@@ -31,6 +41,161 @@ def buildStandardMagicScope(argStrs):
             return cachedArg
 
         scope.registerMagic(argN, 'a' + str(i))
+
+    @scope.registerMagic
+    def help():
+        r"""The help browser."""
+        return HelpBrowser(scope)
+
+    @scope.registerMagic
+    def ri():
+        r"""
+          The raw standard input as a string.  The first access calls
+          'sys.stdin.read()', so compare these:
+
+            $ echo 'foo' | pyeval 'len(sys.stdin.read())'
+            4
+
+            $ echo 'foo' | pyeval 'len(ri)'
+            4
+
+          Notice because of magic variable caching, using 'ri' multiple times
+          always results in the same input:
+
+            $ echo 'foo' | pyeval '[len(ri), ri.replace("o", "-")]'
+            [4, 'f--\n']
+        """
+        return sys.stdin.read()
+
+    @scope.registerMagic
+    def i():
+        r"""
+        The stripped standard input string.  Defined as 'ri.strip()' so:
+
+          $ echo 'foo' | pyeval 'len(ri.strip())'
+          3
+
+          $ echo 'foo' | pyeval 'len(i)'
+          3
+        """
+        return scope['ri'].strip()
+
+    @scope.registerMagic
+    def rlines():
+        r"""
+        The list of raw standard input lines.  Defined as 'ri.split("\\n")'.
+        """
+        return scope['ri'].split('\n')
+
+    @scope.registerMagic
+    def lines():
+        r"""
+        The list of stripped standard input lines.  Defined as:
+        '[ l.strip() for l in scope['rlines'] ]'
+        """
+        return [ l.strip() for l in scope['rlines'] ]
+
+    @scope.registerMagic
+    def ilines():
+        r"""
+        A line iterator over stripped lines from stdin.  Defined as:
+        '( l.strip() for l in sys.stdin )'
+        """
+        return ( l.strip() for l in sys.stdin )
+
+    @scope.registerMagicFunction
+    def pp(*a, **kw):
+        r"""
+        An alias to pprint.pprint.  This is useful when you want to explicitly
+        see None, which the default display hook elides:
+
+          $ pyeval '{}.get("monkey")'
+
+          $ pyeval 'pp({}.get("monkey"))'
+          None
+        """
+        pprint.pprint(*a, **kw)
+
+    @scope.registerMagicFunction
+    def p(x):
+        r"""
+        A wrapper around the print statement.  Use this if you want
+        to avoid pretty printed results:
+
+          $ pyeval 'p({}.get("nothing"))'
+          None
+
+          $ pyeval 'range(123)'
+          [0,
+           1,
+           ...
+
+          $ pyeval 'p(range(123))'
+          [0, 1, ...
+
+        Also, it allows you to print strings directly:
+
+          $ pyeval 'p("x\ty\nz")'
+          x	y
+          z
+
+        Note, it's possible to display unicode this way, using the detected encoding:
+
+          $ pyeval 'p(u"\u2606")'
+          ☆
+
+        For more details on the encoding, run:
+
+          $ pyeval 'help.encoding'
+          ...
+        """
+
+        if type(x) is unicode:
+            x = x.encode(display.getEncoding())
+
+        print x
+
+    @scope.registerMagicFunction
+    def sh(obj):
+        r"""
+        Display the argument in a "shell friendly manner":
+
+        1. If obj is None, display nothing.
+
+        2. If obj is not iterable, treat it as [obj] in the following steps:
+
+        For each item in the iterable:
+
+        3. Convert the item to unicode as: unicode(item)
+
+        4. Print the result with p().
+
+        NOTE: This was the default display behavior of pyeval <=
+        2.1.6, so to produce the equivalent output in pyeval > 2.1.6,
+        wrap the expression in 'sh(...)'.
+
+        An example of emulating grep
+
+          $ echo -e 'food\nmonkey\nfool' | grep '^foo'
+          food
+          fool
+
+          $ echo -e 'food\nmonkey\nfool' | pyeval 'sh( l for l in ilines if l.startswith("foo") )'
+          food
+          fool
+        """
+        if obj is None:
+            return
+
+        it = [obj]
+        if type(obj) not in (str, unicode):
+            try:
+                it = iter(obj)
+            except TypeError:
+                pass
+
+        for elem in it:
+            scope['p'](unicode(elem))
 
     return scope
 
