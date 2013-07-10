@@ -53,22 +53,17 @@ For more examples, run:
 
 
 import __builtin__
-import os
 import sys
 import pprint
 from types import ModuleType
 from functools import wraps
 
+from pyeval import display
 from pyeval.indentation import dedent, indent
 
 
 
-def displayPretty(obj):
-    if obj is not None:
-        pprint.pprint(obj)
-
-
-def main(args = sys.argv[1:], displayhook=displayPretty):
+def main(args = sys.argv[1:], displayhook=display.displayPretty):
     sys.displayhook = displayhook
 
     expr, strs = args[0], args[1:]
@@ -87,14 +82,6 @@ def import_last(modpath):
     for name in modpath.split('.')[1:]:
         mod = getattr(mod, name)
     return mod
-
-
-def getEncoding():
-    # NOTE: I do not know how well this will work in practice:
-    # If sys.stdout.encoding is not set (because stdout is not a terminal),
-    # we use LC_CTYPE *anyway*.
-    return (getattr(sys.stdout, 'encoding', None)
-            or os.environ.get('LC_CTYPE', 'UTF-8').split( '.', 1 )[-1])
 
 
 def fallthroughDefault(key):
@@ -223,7 +210,7 @@ class MagicScope (dict):
             """
 
             if type(x) is unicode:
-                x = x.encode(getEncoding())
+                x = x.encode(display.getEncoding())
 
             print x
 

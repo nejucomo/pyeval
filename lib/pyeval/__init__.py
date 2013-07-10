@@ -18,7 +18,8 @@ from pyeval.everything import \
     Usage, \
     dedent, \
     indent, \
-    displayPretty, \
     main, \
     pyeval, \
     import_last
+
+from pyeval.display import displayPretty
