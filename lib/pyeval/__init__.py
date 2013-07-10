@@ -1,5 +1,6 @@
 __all__ = [
     'AutoImporter',
+    'Copyright',
     'HelpBrowser',
     'MagicScope',
     'Usage',
@@ -16,10 +17,10 @@ from pyeval.everything import \
     HelpBrowser, \
     MagicScope, \
     Usage, \
-    dedent, \
-    indent, \
-    main, \
     pyeval, \
     import_last
 
+from pyeval.copyright import Copyright
 from pyeval.display import displayPretty
+from pyeval.main import main
+from pyeval.indentation import dedent, indent

@@ -1,22 +1,5 @@
 # -*- coding: utf-8 -*-
 
-CopyrightInfo = r"""
-Copyright 2013 Nathan Wilcox
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""
-
 Usage = r"""
 Usage: pyeval EXPR [ARG...]
 
@@ -61,14 +44,6 @@ from functools import wraps
 from pyeval import display
 from pyeval.indentation import dedent, indent
 
-
-
-def main(args = sys.argv[1:], displayhook=display.displayPretty):
-    sys.displayhook = displayhook
-
-    expr, strs = args[0], args[1:]
-    result = pyeval(expr, *strs)
-    sys.displayhook(result)
 
 
 def pyeval(expr, *args):
