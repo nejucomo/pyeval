@@ -18,7 +18,7 @@ then
 fi
 
 
-coverage run "$TRIAL" ./lib/pyeval
+coverage run --branch "$TRIAL" ./lib/pyeval
 STATUS=$?
 
 echo -e '\n--- Generating Coverage Report ---'
