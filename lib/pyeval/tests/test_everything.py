@@ -1,6 +1,5 @@
 import unittest
-from types import ModuleType, FunctionType
-import math
+from types import FunctionType
 import os
 
 import pyeval
@@ -10,21 +9,6 @@ from pyeval.tests.fakeio import FakeIO
 
 # Unless there's a specific exception, all testing uses this encoding:
 os.environ['LC_TYPE'] = 'utf-8'
-
-
-
-class pyevalTests (unittest.TestCase):
-    """High-level tests of pyeval.pyeval."""
-
-    def test_autoimportTopLevel(self):
-        self.assertIs(math, pyeval.pyeval('math')._ai_mod)
-
-    def test_autoimportSubmodule(self):
-        ai = pyeval.pyeval('faketestpackage.faketestmodule')
-        self.assertIs(ModuleType, type(ai._ai_mod))
-
-    def test_unboundRaisesNameError(self):
-        self.assertRaises(NameError, pyeval.pyeval, 'BLORK_IS_NOT_BOUND')
 
 
 
