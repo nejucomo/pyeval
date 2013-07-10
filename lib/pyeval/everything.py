@@ -59,6 +59,8 @@ import pprint
 from types import ModuleType
 from functools import wraps
 
+from pyeval.indentation import dedent, indent
+
 
 
 def displayPretty(obj):
@@ -93,30 +95,6 @@ def getEncoding():
     # we use LC_CTYPE *anyway*.
     return (getattr(sys.stdout, 'encoding', None)
             or os.environ.get('LC_CTYPE', 'UTF-8').split( '.', 1 )[-1])
-
-
-def dedent(text):
-    indentedlines = text.rstrip().split('\n')
-
-    while indentedlines[0] == '':
-        indentedlines.pop(0)
-
-    firstline = indentedlines[0]
-
-    indent = len(firstline) - len(firstline.lstrip())
-
-    dedentedlines = []
-    for indented in indentedlines:
-        assert indented == '' or indented[:indent].strip() == '', `indented`
-        dedentedlines.append(indented[indent:])
-
-    return '\n'.join(dedentedlines) + '\n'
-
-
-def indent(text, amount=2):
-    indent = ' ' * amount
-    separator = '\n' + indent
-    return indent + separator.join(text.rstrip().split('\n')) + '\n'
 
 
 def fallthroughDefault(key):
