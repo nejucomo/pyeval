@@ -11,8 +11,7 @@ __all__ = [
     'import_last',
     ]
 
-from pyeval.everything import pyeval
-
+from pyeval.eval import pyeval
 from pyeval.help import HelpBrowser
 from pyeval.magic.scope import MagicScope
 from pyeval.autoimporter import AutoImporter, import_last

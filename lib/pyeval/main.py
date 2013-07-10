@@ -3,7 +3,7 @@ __all__ = ['main']
 import sys
 
 from pyeval.display import displayPretty
-from pyeval.everything import pyeval
+from pyeval.eval import pyeval
 
 
 def main(args = sys.argv[1:], displayhook=displayPretty):
