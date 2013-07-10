@@ -2,7 +2,7 @@
 
 import sys
 import unittest
-from types import ModuleType
+from types import ModuleType, FunctionType
 import pprint
 from cStringIO import StringIO
 import math
@@ -173,6 +173,14 @@ class MagicScopeTests (unittest.TestCase):
         test_output(['foo', 42], 'foo\n42\n')
         test_output( ( x for x in ['foo', 42] ), 'foo\n42\n')
         test_output( {'x': 'xylophone', 'y': 'yam'}, 'y\nx\n')
+
+    def test_magicFunctionNamesMatchBinding(self):
+        for (name, _) in self.scope.getMagicDocs():
+            with FakeIO():
+                value = self.scope[name]
+
+            if isinstance(value, FunctionType):
+                self.assertEqual(name, value.__name__)
 
 
 
