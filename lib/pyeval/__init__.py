@@ -3,7 +3,6 @@ __all__ = [
     'Copyright',
     'HelpBrowser',
     'MagicScope',
-    'Usage',
     'displayPretty',
     'dedent',
     'indent',
@@ -16,7 +15,6 @@ from pyeval.everything import \
     AutoImporter, \
     HelpBrowser, \
     MagicScope, \
-    Usage, \
     pyeval, \
     import_last
 

@@ -232,7 +232,7 @@ class HelpBrowserTests (unittest.TestCase):
         self.help = pyeval.HelpBrowser(pyeval.MagicScope(), self.delegateCalls.append)
 
     def test___repr__(self):
-        self.assertTrue(repr(self.help).find(pyeval.Usage) != -1)
+        self.assertNotEqual(-1, repr(self.help).find(pyeval.dedent(self.help.HelpText)))
         self.assertEqual([], self.delegateCalls)
 
     def test_autoImporter(self):
