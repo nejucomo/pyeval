@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os
 from distutils.core import setup
 
 setup(name='pyeval',
@@ -9,6 +10,6 @@ setup(name='pyeval',
       author_email='nejucomo@gmail.com',
       license='GPLv3',
       url='https://bitbucket.org/nejucomo/pyeval/wiki/Home',
-      scripts=['pyeval'],
-      py_modules=['pyeval'],
+      scripts=[os.path.join('bin', 'pyeval')],
+      py_modules=[os.path.join('lib', 'pyeval')],
       )
