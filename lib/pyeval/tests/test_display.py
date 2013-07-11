@@ -15,8 +15,7 @@ class displayPrettyTests (unittest.TestCase):
         with fio:
             displayPretty(None)
 
-        self.assertEqual('', fio.fakeout.getvalue())
-        self.assertEqual('', fio.fakeerr.getvalue())
+        fio.checkLiteral(self, '', '')
 
     def test_displayValues(self):
         for value in [42, "banana", range(1024), vars()]:
@@ -29,5 +28,4 @@ class displayPrettyTests (unittest.TestCase):
             with fio:
                 displayPretty(value)
 
-            self.assertEqual(expected, fio.fakeout.getvalue())
-            self.assertEqual('', fio.fakeerr.getvalue())
+            fio.checkLiteral(self, expected, '')

@@ -125,8 +125,7 @@ class StandardMagicScopeTests (unittest.TestCase):
                 result = sh(arg)
 
             self.assertIsNone(result, 'sh() returned non-None: %r' % (result,))
-            self.assertEqual(expected, fio.fakeout.getvalue())
-            self.assertEqual('', fio.fakeerr.getvalue())
+            fio.checkLiteral(self, expected, '')
 
         test_output(None, '')
         test_output('foo', 'foo\n')

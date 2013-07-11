@@ -88,8 +88,7 @@ class DocExampleVerificationTests (unittest.TestCase):
                     with fio:
                         main([expr] + args)
 
-                    self.assertRegexpMatches(fio.fakeout.getvalue(), expectedRgx)
-                    self.assertEqual('', fio.fakeerr.getvalue())
+                    fio.checkRegexp(self, expectedRgx, '^$')
 
                 except Exception, e:
                     e.args += ('In topic %r' % (topic.fullname,),
