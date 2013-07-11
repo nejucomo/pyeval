@@ -1,11 +1,6 @@
 __all__ = [
-    'AutoImporterHelp',
     'HelpBrowser',
     'HelpTopic',
-    'MagicScopeHelp',
-    'encodingHelp',
-    'examplesHelp',
-    'variablesHelp',
     ]
 
 
@@ -97,7 +92,7 @@ class HelpBrowser (HelpTopic):
       There are "magic variables" whose result is only computed on the first
       dereference. For more detail, run:
 
-          $ pyeval 'help.MagicScope'
+          $ pyeval 'help.magic'
           ...
 
       Any reference which is not a standard builtin or a magic variable results
@@ -117,7 +112,7 @@ class HelpBrowser (HelpTopic):
     @staticmethod
     def _getSubtopics():
         return [
-            MagicScopeHelp,
+            magicHelp,
             AutoImporterHelp,
             examplesHelp,
             encodingHelp,
@@ -148,17 +143,18 @@ class HelpBrowser (HelpTopic):
         self._delegate(obj)
 
 
-class MagicScopeHelp (HelpTopic):
+class magicHelp (HelpTopic):
 
     HelpText = r"""
-      The global scope of EXPR is an instance of MagicScope, a subclass of
-      dict, which:
+      The global scope of EXPR is a standard instance of MagicScope, a subclass
+      of dict.  A MagicScope has two special properties:
 
-      * includes all __builtins__.
       * includes magic variables (see below).
-      * resolves to an AutoImporter for any unbound reference.
+      * unbound references are passed through to a "fallthrough" handler.
 
-      For more detail about the AutoImporter mechanism, run:
+      The standard fallthrough handler attempts to find the reference in
+      __builtin__, or if it is not there, it delegates to an AutoImporter
+      instance.  For more detail about the AutoImporter mechanism, run:
 
           $ pyeval 'help.AutoImporter'
           ...
@@ -171,6 +167,18 @@ class MagicScopeHelp (HelpTopic):
 
           $ echo 'Hello World!' | pyeval '[len(i), len(i.split())]'
           [12, 2]
+
+      Additionally, all registered magic variables have documentation
+      in the 'help.variables' topic.  For specific magic variable
+      documentation, run:
+
+          $ pyeval 'help.magic.variables'
+          ...
+
+      The standard scope has a binding for itself named 'scope':
+
+          $ pyeval 'scope'
+          <MagicScope [...]>
     """
 
     @staticmethod

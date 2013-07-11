@@ -28,4 +28,10 @@ class pyevalTests (unittest.TestCase):
 
             fio.checkLiteral(self, expected, '')
 
+    def test_scopeRepr(self):
+        fio = FakeIO()
+        with fio:
+            main(['scope'])
+
+        fio.checkRegexp(self, '^<MagicScope \[.*\]>$', '^$')
 
