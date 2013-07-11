@@ -6,12 +6,18 @@ __all__ = [
     'lines',
     'ri',
     'rlines',
+    'scope',
     ]
 
 
 import sys
 from pyeval.help import HelpBrowser
 from pyeval.display import getEncoding
+
+
+def scope(scope):
+    r"""The evaluation scope, an instance of MagicScope."""
+    return scope
 
 
 def encoding(scope):
