@@ -12,6 +12,14 @@ from pyeval.magic import variables, functions
 
 
 def pyevalAndDisplay(expr, *args, **kw):
+    """
+    Evaluate expr and args, then display the result with sys.displayhook.
+
+    If the displayhook keyword is given and None, sys.displayhook is not
+    modified.  Otherwise it is temporarily assigned to sys.displayhook
+    and restored before returning.  It not given, it defaults to
+    pyeval.display.displayPretty.
+    """
     displayhook = kw.pop('displayhook', displayPretty)
     if len(kw) > 0:
         raise TypeError('pyevalAndDisplay() got unexpected keywords: %r' % (kw.keys(),))
