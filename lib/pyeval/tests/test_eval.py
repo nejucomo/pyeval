@@ -77,7 +77,6 @@ class StandardMagicScopeTests (unittest.TestCase):
 
         self.assertEqual(len(self.scope), len(self.scope.getMagicDocs()))
 
-
     def test_inputCaching(self):
         rawin = 'foo\nbar\n\n'
         stripin = rawin.strip()
