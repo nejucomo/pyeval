@@ -12,13 +12,20 @@ from pyeval.magic import variables, functions
 
 
 def pyevalAndDisplay(expr, *args, **kw):
-    sys.displayhook = kw.pop('displayhook', displayPretty)
-
+    displayhook = kw.pop('displayhook', displayPretty)
     if len(kw) > 0:
         raise TypeError('pyevalAndDisplay() got unexpected keywords: %r' % (kw.keys(),))
 
-    result = pyeval(expr, *args)
-    sys.displayhook(result)
+    if displayhook is None:
+        displayhook = sys.displayhook
+
+    savedhook = sys.displayhook
+    sys.displayhook = displayhook
+    try:
+        result = pyeval(expr, *args)
+        sys.displayhook(result)
+    finally:
+        sys.displayhook = savedhook
 
 
 def pyeval(expr, *args):
