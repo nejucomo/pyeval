@@ -44,8 +44,13 @@ def buildStandardMagicScope(argStrs, autoimporter=None):
     if autoimporter is None:
         autoimporter = AutoImporter()
 
-    scope = MagicScope(autoimporter.proxyImport)
-    scope.update(vars(__builtin__))
+    def fallthrough(key):
+        try:
+            return getattr(__builtin__, key)
+        except AttributeError:
+            return autoimporter.proxyImport(key)
+
+    scope = MagicScope(fallthrough)
 
     @scope.registerMagic
     def ai(_):
