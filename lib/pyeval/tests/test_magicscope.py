@@ -77,6 +77,11 @@ class MagicScopeDictInterfaceTests (unittest.TestCase):
             """y docs"""
             return 1
 
+    def test___repr__(self):
+        # The repr should *not* delegate to dict, because some magic
+        # values trigger IO:
+        self.assertRegexpMatches(repr(self.scope), r'<MagicScope \[.*\]>$')
+
     def _testInvariantEquality(self, expected, f, *args):
         self.assertEqual(expected, f(*args))
 
