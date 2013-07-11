@@ -22,10 +22,10 @@ class pyevalTests (unittest.TestCase):
         expected = fio.fakeout.getvalue()
         self.assertEqual('', fio.fakeerr.getvalue())
 
-        for alias in ['-h', '--help']:
+        for args in [[], ['-h'], ['--help']]:
             fio = FakeIO()
             with fio:
-                main([alias])
+                main(args)
 
             self.assertEqual(expected, fio.fakeout.getvalue())
             self.assertEqual('', fio.fakeerr.getvalue())
