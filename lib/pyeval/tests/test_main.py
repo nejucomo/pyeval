@@ -1,22 +1,16 @@
 import unittest
-import math
 
 from pyeval.main import main
+from pyeval.tests.fakeio import FakeIO
 
 
+class pyevalTests (unittest.TestCase):
 
-class mainTests (unittest.TestCase):
+    def test_fortytwo(self):
+        fio = FakeIO()
+        with fio:
+            main(['42'])
 
-    def _test_main(self, expected, args):
-        displays = []
-        main(args, displays.append)
-        self.assertEqual([expected], displays)
+        self.assertEqual('42\n', fio.fakeout.getvalue())
+        self.assertEqual('', fio.fakeerr.getvalue())
 
-    def test_a1(self):
-        self._test_main('B', ['a1', 'A', 'B', 'C'])
-
-    def test_42(self):
-        self._test_main(42, ['42', 'A', 'B', 'C'])
-
-    def test_math_pi(self):
-        self._test_main(math.pi, ['math.pi', 'A', 'B', 'C'])

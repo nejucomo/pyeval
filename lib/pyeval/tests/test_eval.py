@@ -4,14 +4,12 @@ from types import FunctionType
 
 from pyeval.help import HelpBrowser
 from pyeval.autoimporter import AutoImporter
-from pyeval.eval import pyeval, buildStandardMagicScope
+from pyeval.eval import pyeval, pyevalAndDisplay, buildStandardMagicScope
 from pyeval.tests.fakeio import FakeIO
 
 
 
 class pyevalTests (unittest.TestCase):
-    """High-level tests of pyeval.eval.pyeval."""
-
     def test_autoimportTopLevel(self):
         self.assertIs(math, pyeval('ai.mod(math)'))
 
@@ -27,6 +25,23 @@ class pyevalTests (unittest.TestCase):
 
     def test_unboundRaisesNameError(self):
         self.assertRaises(NameError, pyeval, 'BLORK_IS_NOT_BOUND')
+
+
+class pyevalAndDisplayTests (unittest.TestCase):
+
+    def _test_pead(self, expected, args):
+        displays = []
+        pyevalAndDisplay(displayhook=displays.append, *args)
+        self.assertEqual([expected], displays)
+
+    def test_a1(self):
+        self._test_pead('B', ['a1', 'A', 'B', 'C'])
+
+    def test_42(self):
+        self._test_pead(42, ['42', 'A', 'B', 'C'])
+
+    def test_math_pi(self):
+        self._test_pead(math.pi, ['math.pi', 'A', 'B', 'C'])
 
 
 class StandardMagicScopeTests (unittest.TestCase):

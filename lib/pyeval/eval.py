@@ -1,12 +1,24 @@
-__all__ = ['pyeval', 'buildStandardMagicScope']
+__all__ = ['pyeval', 'pyevalAndDisplay', 'buildStandardMagicScope']
 
 
 import __builtin__
+import sys
 
 from pyeval.autoimporter import AutoImporter
+from pyeval.display import displayPretty
 from pyeval.magic.scope import MagicScope
 from pyeval.magic import variables, functions
 
+
+
+def pyevalAndDisplay(expr, *args, **kw):
+    sys.displayhook = kw.pop('displayhook', displayPretty)
+
+    if len(kw) > 0:
+        raise TypeError('pyevalAndDisplay() got unexpected keywords: %r' % (kw.keys(),))
+
+    result = pyeval(expr, *args)
+    sys.displayhook(result)
 
 
 def pyeval(expr, *args):
