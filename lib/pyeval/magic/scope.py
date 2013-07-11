@@ -40,6 +40,11 @@ class MagicScope (dict):
 
 
     # dict interface:
+    def __repr__(self):
+        # Explicitly override dict.__repr__ to prevent evaluating magic values:
+        return '<%s %r>' % (type(self).__name__, sorted(self.keys()))
+
+
     def __getitem__(self, key):
         method = self._magic.get(key)
 
