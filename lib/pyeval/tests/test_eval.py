@@ -1,4 +1,5 @@
 import unittest
+import sys
 import math
 from types import FunctionType
 
@@ -42,6 +43,17 @@ class pyevalAndDisplayTests (unittest.TestCase):
 
     def test_math_pi(self):
         self._test_pead(math.pi, ['math.pi', 'A', 'B', 'C'])
+
+    def test_displayhookReset(self):
+        hook = lambda _: None
+        pyevalAndDisplay('42', displayhook=hook)
+        self.assertIsNot(hook, sys.displayhook)
+
+    def test_displayhookNoTouch(self):
+        hook = lambda _: None
+        sys.displayhook = hook
+        pyevalAndDisplay('42', displayhook=None)
+        self.assertIs(hook, sys.displayhook)
 
 
 class StandardMagicScopeTests (unittest.TestCase):
