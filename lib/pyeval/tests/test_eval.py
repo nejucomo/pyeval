@@ -69,6 +69,15 @@ class StandardMagicScopeTests (unittest.TestCase):
         self.args = ['foo', 'bar']
         self.scope = buildStandardMagicScope(self.args, self.fakeai)
 
+    def test_conciseBindings(self):
+        # The standard MagicScope delegates to __builtin__ in its
+        # fallthrough, rather than dumping all builtins into the dict.
+        # This keeps the output short and relevant of:
+        # $ pyeval 'dir()'
+
+        self.assertEqual(len(self.scope), len(self.scope.getMagicDocs()))
+
+
     def test_inputCaching(self):
         rawin = 'foo\nbar\n\n'
         stripin = rawin.strip()
