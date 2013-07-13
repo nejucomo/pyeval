@@ -80,8 +80,8 @@ class HelpBrowser (HelpTopic):
       Evaluate EXPR with the python interpreter.  Any other ARGs are available
       as strings in the expression.  Example:
 
-          $ pyeval 'math.cos(math.pi * 2)'
-          1.0
+          $ pyeval 'a0.split("-")' hello-world
+          ['hello', 'world']
 
       Evaluation differs from the interactive interpreter in three ways:
       result display, magic variables, and automatic imports.
@@ -90,19 +90,16 @@ class HelpBrowser (HelpTopic):
       nothing is displayed.
 
       There are "magic variables" whose result is only computed on the first
-      dereference. For more detail, run:
-
-          $ pyeval 'help.magic'
-          ...
+      dereference.
 
       Any reference which is not a standard builtin or a magic variable results
-      in an AutoImporter instance, which the first example demonstrates by
-      importing 'math'.  For more detail, run:
+      in an AutoImporter instance, which this example demonstrates by
+      importing 'math':
 
-          $ pyeval 'help.AutoImporter'
-          ...
+          $ pyeval 'math.cos(math.pi * 2)'
+          1.0
 
-      For more examples, run:
+      To explore further topics below, evaluate that topic.  For example:
 
           $ pyeval 'help.examples'
           ...
