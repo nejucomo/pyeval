@@ -1,7 +1,10 @@
+import os
 import sys
 import re
 import unittest
 import traceback
+
+import pkg_resources
 
 from pyeval.autoimporter import AutoImporter
 from pyeval.eval import buildStandardMagicScope
@@ -70,8 +73,13 @@ class DocExampleVerificationTests (unittest.TestCase):
 
         count = 0
 
-        for topic in hb.getAllSubtopics():
-            for (expr, args, inputText, outlines) in self._parseEntries(repr(topic)):
+        helptexts = [ repr(topic) for topic in hb.getAllSubtopics() ]
+
+        for filename in pkg_resources.resource_listdir('pyeval', 'doc'):
+            helptexts.append(pkg_resources.resource_string('pyeval', os.path.join('doc', filename)))
+
+        for helptext in helptexts:
+            for (expr, args, inputText, outlines) in self._parseEntries(helptext):
                 count += 1
                 try:
                     if inputText is None:
