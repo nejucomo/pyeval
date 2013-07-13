@@ -1,6 +1,7 @@
 import sys
 import re
 import unittest
+import traceback
 
 from pyeval.autoimporter import AutoImporter
 from pyeval.eval import buildStandardMagicScope
@@ -86,9 +87,15 @@ class DocExampleVerificationTests (unittest.TestCase):
                     fio = FakeIO(inputText + '\n')
 
                     with fio:
-                        main([expr] + args)
+                        try:
+                            main([expr] + args)
+                        except Exception:
+                            traceback.print_exc(file=fio.fakeerr)
 
-                    fio.checkRegexp(self, expectedRgx, '^$')
+                    if expectedOut.startswith('Traceback (most recent call last)'):
+                        fio.checkRegexp(self, '^$', expectedRgx)
+                    else:
+                        fio.checkRegexp(self, expectedRgx, '^$')
 
                 except Exception, e:
                     e.args += ('In topic %r' % (topic.fullname,),

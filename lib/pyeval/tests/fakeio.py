@@ -16,9 +16,9 @@ class FakeIO (object):
         self._realerr = sys.stderr
         self._realin = sys.stdin
 
-        self._fakeout = sys.stdout = StringIO()
-        self._fakeerr = sys.stderr = StringIO()
-        self._fakein = sys.stdin = StringIO(self._inbytes)
+        self.fakeout = sys.stdout = StringIO()
+        self.fakeerr = sys.stderr = StringIO()
+        self.fakein = sys.stdin = StringIO(self._inbytes)
 
         return self
 
@@ -29,7 +29,7 @@ class FakeIO (object):
 
     # Unittest verification API:
     def getOutputs(self):
-        return (self._fakeout.getvalue(), self._fakeerr.getvalue())
+        return (self.fakeout.getvalue(), self.fakeerr.getvalue())
 
     def checkLiteral(self, testcase, expectedOut, expectedError):
         self.checkRegexp(testcase, re.escape(expectedOut), re.escape(expectedError))
