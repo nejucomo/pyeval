@@ -55,6 +55,9 @@ class pyevalAndDisplayTests (unittest.TestCase):
         pyevalAndDisplay('42', displayhook=None)
         self.assertIs(hook, sys.displayhook)
 
+    def test_unexpectedKeyword(self):
+        self.assertRaises(TypeError, pyevalAndDisplay, '42', wombat='monkey')
+
 
 class StandardMagicScopeTests (unittest.TestCase):
     def setUp(self):
