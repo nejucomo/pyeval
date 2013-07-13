@@ -1,0 +1,22 @@
+Goals for 0.2a1:
+
+- Move the online help source out of python classes in pyeval.help
+  and into pyeval/doc/*.rst files, then use pkg_resources to provide
+  online help.  This will make maintenance of those documents much
+  simpler.
+
+Goals for 0.2a2:
+
+- Add argparse support.
+- exec ~/.pyevaluser.py in the magic scope before evaluating EXPR.
+- Add option to disable user-file exec, or to select a different userfile.
+
+Goals for 0.2a3:
+
+- Python 3 support.
+
+Goals for 0.2:
+
+- Solicit user testing for 0.2a3.
+
+- Fix bugs discovered by users.
