@@ -1,6 +1,40 @@
+2013-07-10 - Version '0.2.dev'
+
+ - Changed version scheme to follow PEP 440.
+
+ - Changed default display behavior to be similar to the interactive
+   interpreter, except using pprint for non-None.
+
+   Compatibility note: To produce the same output as v0.1.6, use the sh()
+   magic variable.  For example replace:
+
+   $ pyeval '"foo"' # version 0.1.6
+
+   -with:
+
+   $ pyeval 'sh("foo")' # versions after 0.1.6:
+
+   For more details run:
+
+   $ pyeval 'help(sh)'
+
+ - Added thorough unittests with full branch coverage.
+
+ - Improved the online help system and added many topics.  To see the
+   result, run:
+
+   $ pyeval help
+
+   The examples in online help topics are verified by unittests.
+
+ - Transitioned away from a single "pyeval" script to a separate
+   library and script, so that it's possible to use pyeval features in
+   other projects.
+
+
 2012-05-30 - Version '0.1.6' - As of: 573158ff1db2
 
-  - Changed output to unicode.
-  - If the standard python encoding is available use that.
-  - If not, try to parse LC_CTYPE and use that.
+ - Changed output to unicode.
+ - If the standard python encoding is available use that.
+ - If not, try to parse LC_CTYPE and use that.
   

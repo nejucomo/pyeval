@@ -1,13 +1,16 @@
 #!/usr/bin/env python
 
-from distutils.core import setup
+import os
+from setuptools import setup, find_packages
 
 setup(name='pyeval',
       description='Conveniently evaluate expressions from the shell',
-      version='0.1.6',
+      version='0.2a0',
       author='Nathan Wilcox',
       author_email='nejucomo@gmail.com',
       license='GPLv3',
-      url='https://bitbucket.org/nejucomo/pyeval/wiki/Home',
-      scripts=['pyeval'],
-     )
+      url='https://bitbucket.org/nejucomo/pyeval',
+      packages=find_packages('lib'),
+      package_dir={'': 'lib'},
+      scripts=[os.path.join('bin', 'pyeval')],
+      )
