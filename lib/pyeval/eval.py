@@ -8,6 +8,7 @@ from pyeval.autoimporter import AutoImporter
 from pyeval.display import displayPretty
 from pyeval.magic.scope import MagicScope
 from pyeval.magic import variables, functions
+from pyeval.monkeypatch import patch
 
 
 
@@ -27,13 +28,9 @@ def pyevalAndDisplay(expr, *args, **kw):
     if displayhook is None:
         displayhook = sys.displayhook
 
-    savedhook = sys.displayhook
-    sys.displayhook = displayhook
-    try:
+    with patch(sys, 'displayhook', displayhook):
         result = pyeval(expr, *args)
         sys.displayhook(result)
-    finally:
-        sys.displayhook = savedhook
 
 
 def pyeval(expr, *args):
