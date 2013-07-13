@@ -10,7 +10,9 @@ setup(name='pyeval',
       author_email='nejucomo@gmail.com',
       license='GPLv3',
       url='https://bitbucket.org/nejucomo/pyeval',
+
+      scripts=[os.path.join('bin', 'pyeval')],
       packages=find_packages('lib'),
       package_dir={'': 'lib'},
-      scripts=[os.path.join('bin', 'pyeval')],
+      package_data={'pyeval': ['doc/*.txt']},
       )
