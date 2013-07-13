@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import os
-from distutils.core import setup
+from setuptools import setup, find_packages
 
 setup(name='pyeval',
       description='Conveniently evaluate expressions from the shell',
@@ -9,7 +9,8 @@ setup(name='pyeval',
       author='Nathan Wilcox',
       author_email='nejucomo@gmail.com',
       license='GPLv3',
-      url='https://bitbucket.org/nejucomo/pyeval/wiki/Home',
+      url='https://bitbucket.org/nejucomo/pyeval',
+      packages=find_packages('lib'),
+      package_dir={'': 'lib'},
       scripts=[os.path.join('bin', 'pyeval')],
-      py_modules=[os.path.join('lib', 'pyeval')],
       )
