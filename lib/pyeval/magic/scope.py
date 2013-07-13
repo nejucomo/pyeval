@@ -14,13 +14,20 @@ class MagicScope (dict):
 
 
     # Explicit magic interface:
-    def registerMagic(self, f, name=None):
+    def registerMagic(self, f, name=None, doc=None):
 
         if name is None:
             name = f.__name__
 
+        if doc is None:
+            doc = f.__doc__
+
         self.pop(name, None) # Override any previous definitions.
-        self._magic[name] = f
+        self._magic[name] = (f, doc)
+
+
+    def registerMagicConstant(self, value, name, doc):
+        self.registerMagic(lambda _: value, name, doc)
 
 
     def registerMagicFunction(self, f):
@@ -36,7 +43,7 @@ class MagicScope (dict):
 
 
     def getMagicDocs(self):
-        return sorted( [ (k, f.__doc__) for (k, f) in self._magic.iteritems() ] )
+        return sorted( [ (k, doc) for (k, (f, doc)) in self._magic.iteritems() ] )
 
 
     # dict interface:
@@ -46,7 +53,7 @@ class MagicScope (dict):
 
 
     def __getitem__(self, key):
-        method = self._magic.get(key)
+        (method, _) = self._magic.get(key, (None, None))
 
         try:
             return dict.__getitem__(self, key)

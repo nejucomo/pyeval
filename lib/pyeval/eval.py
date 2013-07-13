@@ -54,17 +54,16 @@ def buildStandardMagicScope(argStrs, autoimporter=None):
         """The AutoImporter instance associate with the MagicScope."""
         return autoimporter
 
-    @scope.registerMagic
-    def args(_):
-        """The list of ARG strings after EXPR."""
-        return argStrs
+    scope.registerMagicConstant(
+        argStrs,
+        'args',
+        'The list of ARG strings after EXPR, which is: %r' % (argStrs,))
 
     for (i, arg) in enumerate(argStrs):
-        def argN(_, cachedArg=arg):
-            """A positional ARG given after EXPR."""
-            return cachedArg
-
-        scope.registerMagic(argN, 'a' + str(i))
+        scope.registerMagicConstant(
+            arg,
+            'a%d' % (i,),
+            'The %d-th positional ARG given after EXPR, which is: %r' % (i, arg))
 
     for name in variables.__all__:
         scope.registerMagic(getattr(variables, name))
