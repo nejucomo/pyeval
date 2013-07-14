@@ -1,0 +1,32 @@
+The AutoImporter class allows expressions to use modules directly with
+an implicit "import on demand" functionality.
+
+It accomplishes this by constructing a proxy object to an underlying
+python module which delegates attribute lookups to that module. For
+example, this works:
+
+    $ pyeval 'math.pi'
+    3.141592653589793
+
+If any attribute lookup fails, the proxy attempts to use the AutoImporter
+to proxy a submodule, and if that fails, an AttributeError is raised.
+
+Unfortunately this approach is not completely transparent: references
+to what look like python modules are actually to an instance of
+AutoImporter.Proxy which proxies attribute access to the module.
+
+You can see this by inspecting the repr of a module expression:
+
+    $ pyeval 'logging.config'
+    <AutoImporter proxy for module '...config...'>
+
+The AutoImporter class provides methods to lookup information about
+the original module from a proxy.  Compare the following example to
+the previous:
+
+    $ pyeval 'ai.mod(logging.config)'
+    <module '...config...'>
+
+For more details on these methods, run:
+
+    $ pyeval 'help(ai)'
