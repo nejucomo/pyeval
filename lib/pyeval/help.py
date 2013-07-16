@@ -1,93 +1,14 @@
 __all__ = [
     'HelpBrowser',
-    'HelpTopic',
     ]
 
 
+import os
 import pkg_resources
 from pyeval.indentation import dedent, indent
 
 
-class HelpTopic (object):
-
-    def __init__(self, parent):
-        self.parent = parent
-        self.subtopics = {}
-
-        for topicCls in self._getSubtopics():
-            topic = topicCls(self)
-            self.subtopics[topic.name] = topic
-
-    # Subclass interface:
-    @staticmethod
-    def _getSubtopics():
-        return []
-
-    # User interface:
-    @property
-    def name(self):
-        cname = type(self).__name__
-        assert cname.endswith('Help'), `self`
-        return cname[:-len('Help')]
-
-    @property
-    def fullname(self):
-        return '%s.%s' % (self.parent.fullname, self.name)
-
-    def getAllSubtopics(self):
-        topics = [self]
-
-        for (_, topic) in sorted(self.subtopics.items()):
-            topics.extend(topic.getAllSubtopics())
-
-        return topics
-
-    def __getattr__(self, name):
-        return self.subtopics[name]
-
-    def __repr__(self):
-        text = dedent("""
-          Topic: %(NAME)s
-
-          %(BODY)s
-        """) % {
-            'NAME': self.fullname,
-            'BODY': dedent(self.HelpText),
-            }
-
-        if len(self.subtopics) > 0:
-            subnames = [t.fullname for t in self.getAllSubtopics()]
-            subnames.pop(0)
-            subtopics = '\n'.join(sorted(subnames))
-
-            text = dedent("""
-              %(PREFIX)s\
-
-              Subtopics:
-              %(SUBTOPICS)s
-            """) % {
-                'PREFIX': text,
-                'SUBTOPICS': subtopics,
-                }
-
-        return text
-
-
-class HelpBrowser (HelpTopic):
-
-    HelpText = pkg_resources.resource_string(__name__, 'doc/help.txt')
-
-
-    @staticmethod
-    def _getSubtopics():
-        return [
-            magicHelp,
-            AutoImporterHelp,
-            examplesHelp,
-            encodingHelp,
-            upgradingHelp,
-            ]
-
+class HelpBrowser (object):
 
     def __init__(self, scope, delegate=help):
         """The constructor allows dependency injection for unittests."""
@@ -95,16 +16,43 @@ class HelpBrowser (HelpTopic):
         self._scope = scope
         self._ai = scope['ai']
         self._delegate = delegate
+        self._topics = {}
 
-        HelpTopic.__init__(self, None)
+        for topicfile in pkg_resources.resource_listdir(__name__, 'doc'):
+            if topicfile.endswith('.txt'):
+                topicname = topicfile[:-4]
+                resource = os.path.join('doc', topicname + '.txt')
+                self._topics[topicname] = pkg_resources.resource_string(__name__, resource)
 
-    @property
-    def name(self):
-        return 'help'
+        self._topics['variables'] = self._createVariablesTopic()
 
-    @property
-    def fullname(self):
-        return self.name
+    def getTopics(self):
+        return self._topics.keys()
+
+    def getTopicText(self, topicname):
+        try:
+            topictext = self._topics[topicname]
+        except KeyError:
+            raise SystemExit('Unknown topic %r; known topics: %s' % (
+                    topicname,
+                    ', '.join(sorted(self._topics.keys()))))
+
+        header = 'Help Topic: %s' % (topicname,)
+        return '%s\n%s\n\n%s' % (header, '=' * len(header), topictext)
+
+    def renderTopic(self, topicname):
+        print self.getTopicText(topicname)
+
+    def render(self):
+        args = self._scope['args']
+        if len(args) == 0:
+            args = ['help']
+        try:
+            [topicname] = args
+        except ValueError:
+            raise SystemExit('Too many args for help.') # FIXME
+
+        self.renderTopic(topicname)
 
     def __call__(self, obj):
         if isinstance(obj, self._ai.Proxy):
@@ -112,44 +60,7 @@ class HelpBrowser (HelpTopic):
 
         self._delegate(obj)
 
-
-class magicHelp (HelpTopic):
-
-    HelpText = pkg_resources.resource_string(__name__, 'doc/magic.txt')
-
-
-    @staticmethod
-    def _getSubtopics():
-        return [variablesHelp]
-
-
-class variablesHelp (HelpTopic):
-
-    @property
-    def HelpText(self):
-        scope = self.parent.parent._scope
-
+    def _createVariablesTopic(self):
         return '\n'.join(
             ['%s:\n%s' % (name, indent(dedent(doc)))
-             for (name, doc) in scope.getMagicDocs()])
-
-
-class AutoImporterHelp (HelpTopic):
-
-    HelpText = pkg_resources.resource_string(__name__, 'doc/AutoImporter.txt')
-
-
-class examplesHelp (HelpTopic):
-
-    HelpText = pkg_resources.resource_string(__name__, 'doc/examples.txt')
-
-
-
-class encodingHelp (HelpTopic):
-
-    HelpText = pkg_resources.resource_string(__name__, 'doc/encoding.txt')
-
-
-class upgradingHelp (HelpTopic):
-
-    HelpText = pkg_resources.resource_string(__name__, 'doc/upgrading.txt')
+             for (name, doc) in self._scope.getMagicDocs()])

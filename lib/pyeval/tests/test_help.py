@@ -1,15 +1,11 @@
-import os
 import sys
 import re
 import unittest
 import traceback
 
-import pkg_resources
-
 from pyeval.autoimporter import AutoImporter
 from pyeval.eval import buildStandardMagicScope
 from pyeval.help import HelpBrowser
-from pyeval.indentation import dedent
 from pyeval.main import main
 from pyeval.tests.fakeio import FakeIO
 
@@ -19,10 +15,6 @@ class HelpBrowserTests (unittest.TestCase):
     def setUp(self):
         self.delegateCalls = []
         self.help = HelpBrowser(buildStandardMagicScope([]), self.delegateCalls.append)
-
-    def test___repr__(self):
-        self.assertNotEqual(-1, repr(self.help).find(dedent(self.help.HelpText)))
-        self.assertEqual([], self.delegateCalls)
 
     def test_autoImporter(self):
         proxy = self.help._scope['sys']
@@ -37,7 +29,7 @@ class DocExampleVerificationTests (unittest.TestCase):
     IndentRgx = re.compile(r'^    .*?$', re.MULTILINE)
     InvocationRgx = re.compile(r"^    \$")
     PyevalInvocationRgx = re.compile(
-        r"^    \$ (echo (?P<EFLAG>-e )?'(?P<INPUT>.*?)' \| )?pyeval '(?P<EXPR>.*?)' ?(?P<ARGS>.*?)$")
+        r"^    \$ (echo (?P<EFLAG>-e )?'(?P<INPUT>.*?)' \| )?pyeval (?P<EXPR>('.*?'|\S+)) ?(?P<ARGS>.*?)$")
 
 
     def _parseEntries(self, text):
@@ -58,9 +50,13 @@ class DocExampleVerificationTests (unittest.TestCase):
                     if teststdin is not None:
                         if m3.group('EFLAG') is not None:
                             teststdin = teststdin.replace('\\n', '\n')
-                    entry = (m3.group('EXPR'), args, teststdin, [])
+                    expr = m3.group('EXPR')
+                    if expr.startswith("'") and expr.endswith("'"):
+                        expr = expr[1:-1]
+                    entry = (expr, args, teststdin, [])
                 else:
                     # This is an non-tested example, such as a non-call to pyeval.
+                    #print 'DEBUG: Skipping non-pyeval shell example: %r' % (match,)
                     entry = (None, None, None, [])
 
         if entry is not None and entry[0] is not None:
@@ -73,12 +69,9 @@ class DocExampleVerificationTests (unittest.TestCase):
 
         count = 0
 
-        helptexts = [ repr(topic) for topic in hb.getAllSubtopics() ]
+        topics = [ (topic, hb.getTopicText(topic)) for topic in hb.getTopics() ]
 
-        for filename in pkg_resources.resource_listdir('pyeval', 'doc'):
-            helptexts.append(pkg_resources.resource_string('pyeval', os.path.join('doc', filename)))
-
-        for helptext in helptexts:
+        for (topicname, helptext) in topics:
             for (expr, args, inputText, outlines) in self._parseEntries(helptext):
                 count += 1
                 try:
@@ -106,7 +99,7 @@ class DocExampleVerificationTests (unittest.TestCase):
                         fio.checkRegexp(self, expectedRgx, '^$')
 
                 except Exception, e:
-                    e.args += ('In topic %r' % (topic.fullname,),
+                    e.args += ('In topic %r' % (topicname,),
                                'In EXPR %r' % (expr,),
                                )
                     raise

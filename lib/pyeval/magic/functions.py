@@ -48,7 +48,7 @@ def p(scope, x):
 
     For more details on the encoding, run:
 
-      $ pyeval 'help.encoding'
+      $ pyeval help encoding
       ...
     """
 

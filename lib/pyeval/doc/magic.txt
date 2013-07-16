@@ -8,7 +8,7 @@ The standard fallthrough handler attempts to find the reference in
 __builtin__, or if it is not there, it delegates to an AutoImporter
 instance.  For more detail about the AutoImporter mechanism, run:
 
-    $ pyeval 'help.AutoImporter'
+    $ pyeval help AutoImporter
     ...
 
 A magic variable's value is only computed on the first reference. For
@@ -22,10 +22,10 @@ This example shows the number of characters and words in stdin:
 Additionally, all registered magic variables have documentation in the
 'help.variables' topic.  For specific magic variable documentation, run:
 
-    $ pyeval 'help.magic.variables'
+    $ pyeval help variables
     ...
 
 The standard scope has a binding for itself named 'scope':
 
-    $ pyeval 'scope'
+    $ pyeval scope
     <MagicScope [...]>
