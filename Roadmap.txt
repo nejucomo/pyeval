@@ -5,18 +5,16 @@ Goals for 0.2a1:
   online help.  This will make maintenance of those documents much
   simpler.
 
-Goals for 0.2a2:
+Goals for 0.2.0:
 
 - Add argparse support.
 - exec ~/.pyevaluser.py in the magic scope before evaluating EXPR.
 - Add option to disable user-file exec, or to select a different userfile.
 
-Goals for 0.2a3:
-
-- Python 3 support.
-
-Goals for 0.2:
-
-- Solicit user testing for 0.2a3.
+Goals for 0.2.1:
 
 - Fix bugs discovered by users.
+
+Goals for 0.3:
+
+- Python 3 support.
