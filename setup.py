@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 setup(name='pyeval',
       description='Conveniently evaluate expressions from the shell',
-      version='0.2a1',
+      version='0.2.1a0',
       author='Nathan Wilcox',
       author_email='nejucomo@gmail.com',
       license='GPLv3',
