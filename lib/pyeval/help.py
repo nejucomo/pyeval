@@ -26,6 +26,8 @@ class HelpBrowser (object):
 
         self._topics['variables'] = self._createVariablesTopic()
 
+        self._topics['topics'] = 'Known topics: %s' % (', '.join(sorted(self._topics.keys())),)
+
     def getTopics(self):
         return self._topics.keys()
 
@@ -33,12 +35,12 @@ class HelpBrowser (object):
         try:
             topictext = self._topics[topicname]
         except KeyError:
-            raise SystemExit('Unknown topic %r; known topics: %s' % (
+            raise SystemExit('Unknown topic %r; %s' % (
                     topicname,
-                    ', '.join(sorted(self._topics.keys()))))
+                    self._topics['topics']))
 
         header = 'Help Topic: %s' % (topicname,)
-        return '%s\n%s\n\n%s' % (header, '=' * len(header), topictext)
+        return '%s\n%s\n\n%s\n' % (header, '=' * len(header), topictext)
 
     def renderTopic(self, topicname):
         print self.getTopicText(topicname)

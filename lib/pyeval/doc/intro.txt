@@ -22,9 +22,13 @@ in an AutoImporter instance, which this example demonstrates by importing
     $ pyeval 'math.cos(math.pi * 2)'
     1.0
 
-To explore further topics below, evaluate that topic.  For example:
+To explore further topics evaluate help with the first arugment as the
+topic name.  Start with:
 
-    $ pyeval help examples
+    $ pyeval help topics
     ...
 
-NOTE: If you used pyeval 0.1.6 or older, please see 'help upgrading'.
+NOTE: If you used pyeval 0.1.6 or older, please run
+
+    $ pyeval help upgrading
+    ...
