@@ -46,7 +46,7 @@ class HelpBrowser (object):
     def render(self):
         args = self._scope['args']
         if len(args) == 0:
-            args = ['help']
+            args = ['intro']
         try:
             [topicname] = args
         except ValueError:
