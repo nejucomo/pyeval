@@ -56,11 +56,15 @@ class HelpBrowser (object):
 
         self.renderTopic(topicname)
 
-    def __call__(self, obj):
-        if isinstance(obj, self._ai.Proxy):
-            obj = self._ai.mod(obj)
+    _NoArgSentinel = object()
+    def __call__(self, obj=_NoArgSentinel):
+        if obj is self._NoArgSentinel:
+            self.renderTopic('help')
+        else:
+            if isinstance(obj, self._ai.Proxy):
+                obj = self._ai.mod(obj)
 
-        self._delegate(obj)
+            self._delegate(obj)
 
     def _createVariablesTopic(self):
         return '\n'.join(
