@@ -5,4 +5,4 @@ dist/
 htmlcov/
 _trial_temp/
 *.pyc
-lib/pyeval.egg-info
+*.egg-info

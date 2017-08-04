@@ -1,10 +1,10 @@
 #!/bin/bash
 
-PYTHONPATH=".:./lib:$PYTHONPATH"
+PYTHONPATH=".:$PYTHONPATH"
 
 
 echo '=== pyflakes ==='
-pyflakes ./lib/pyeval || exit $?
+pyflakes ./pyeval || exit $?
 echo 'pyflakes completed.'
 
 
@@ -18,11 +18,11 @@ then
 fi
 
 
-coverage run --branch "$TRIAL" ./lib/pyeval
+coverage run --branch "$TRIAL" ./pyeval
 STATUS=$?
 
 echo -e '\n--- Generating Coverage Report ---'
-coverage html --include='lib/pyeval/*'
+coverage html --include='pyeval/*'
 
 echo 'Report generated.'
 
