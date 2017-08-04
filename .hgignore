@@ -1,8 +1,0 @@
-^MANIFEST$
-^build/
-^dist/
-^\.coverage
-^htmlcov/
-^_trial_temp/
-^.*\.pyc$
-^lib/pyeval.egg-info
