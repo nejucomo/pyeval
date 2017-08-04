@@ -1,0 +1,13 @@
+language: python
+python:
+  - "2.7"
+
+install:
+  - pip install pyflakes coverage twisted coveralls
+  - python setup.py develop
+
+script:
+  - bash run_tests.sh
+
+after_success:
+  - coveralls
