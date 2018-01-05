@@ -1,0 +1,15 @@
+The p() magic function encodes unicode arguments using an encoding
+selected in this order, where the first defined value is used:
+
+1. sys.stdout.encoding
+2. The substring of the LC_CTYPE environment variable after the rightmost '.'
+3. UTF-8
+
+The first works when the stdout is connected to a terminal. When stdout
+is not connected to a terminal, such as when pyeval is used in a shell
+pipeline, the second will hopefully choose the user's preferred encoding.
+
+There is a potential for LC_CTYPE to be a valid setting for the user's
+locale, but to be invalid as a python encoding specifier.
+
+Several other display functions, such as sh() rely on p().

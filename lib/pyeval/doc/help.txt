@@ -1,0 +1,27 @@
+The 'help' binding is an instance of HelpBrowser, which can either
+be used to display pyeval help topics, or can be used similar to the
+'pydoc.help' instance in the python standard library.
+
+To view pyeval help topics, evaluate 'help' with the topic as the first
+argument.  For example:
+
+    $ pyeval help topics
+    ...
+
+To examine source docstrings any object, such as a class, pass it to help
+as a function:
+
+    $ pyeval 'help(BaseHTTPServer.HTTPServer)'
+    ...
+
+There is a special case for AutoImporter module proxies, so that the
+original module is passed on to the pydoc help system:
+
+    $ pyeval 'help(BaseHTTPServer)'
+    ...
+
+To use the interactive help system of pydoc, call it directly:
+
+    $ pyeval 'pydoc.help()'
+    ...
+

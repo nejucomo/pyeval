@@ -1,0 +1,54 @@
+If you used pyeval v0.1.6, there are a few changes in 0.2a0 and later:
+
+The default display routine has changed to be more similar to the
+standard interactive interpreter: If the result is None, there is no
+output; otherwise the result is displayed with pprint.pprint.
+
+The output heuristic used in v0.1.6 and earlier is still available with
+the 'sh()' function.  So, wrapping any v0.1.6 expression with a call to
+'sh()' should produce the same output in pyeval 0.2a0 and later.
+
+For example, the former output would iterate over the value and display
+strings directly:
+
+    $ pyeval-0.1.6 'list("abc")'
+    a
+    b
+    c
+
+In new version of pyeval, instead, you get a pretty-printed list:
+
+    $ pyeval 'list("abc")'
+    ['a', 'b', 'c']
+
+To achieve the old effect, use 'sh':
+
+    $ pyeval 'sh(list("abc"))'
+    a
+    b
+    c
+
+Another difference between versions is the AutoImporter interface which
+is now "cleaner".  Now there is a single AutoImporter instance which
+wraps modules in a Proxy instance.  The Proxy has no exposed attributes
+separate from the wrapped module.  Instead, to access AutoImporter
+details from the proxy, you pass it to AutoImporter methods.
+
+For example, in pyeval v0.1.6, you would access a module directly with
+the old AutoImporter's '_ai_mod' attribute:
+
+    $ pyeval-0.1.6 'type(math._ai_mod)'
+    <type 'module'>
+
+Now this will (correctly) raise an AttributeError, since '_ai_mod'
+is not defined in the math module:
+
+    $ pyeval 'type(math._ai_mod)'
+    Traceback (most recent call last):
+      ...
+    AttributeError: 'module' object has no attribute '_ai_mod'
+
+Now to access the proxied module, call 'ai.mod':
+
+    $ pyeval 'type(ai.mod(math))'
+    <type 'module'>

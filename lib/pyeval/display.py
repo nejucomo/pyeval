@@ -4,10 +4,15 @@ import pprint
 import sys
 import os
 
+from pyeval.help import HelpBrowser
+
 
 def displayPretty(obj):
     if obj is not None:
-        pprint.pprint(obj)
+        if isinstance(obj, HelpBrowser):
+            obj.render()
+        else:
+            pprint.pprint(obj)
 
 
 def getEncoding():

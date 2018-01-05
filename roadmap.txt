@@ -1,0 +1,15 @@
+Goals for 0.2.1:
+
+- All features and bug-fixes in 0.2.1a* which are not present the 0.2.0 release.
+- Establish backwards compatibility policy w/ regression tests.
+- Ensure the roadmap.txt is consistent with the current version.
+- Ensure the CHANGELOG is correct for each production release.
+
+Goals for 0.2.2:
+
+- exec ~/.pyevaluser.py in the magic scope before evaluating EXPR.
+- Add option to disable user-file exec, or to select a different userfile.
+
+Goals for 0.3:
+
+- Python 3 support.
