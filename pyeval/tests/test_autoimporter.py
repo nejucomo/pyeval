@@ -48,7 +48,7 @@ class AutoImporterTests (unittest.TestCase):
         self.assertIsNone(self.ai.path(self.ai.proxyImport('sys')))
 
     def test_pathDotSO(self):
-        self.assertRegexpMatches(self.ai.path(self.ai.proxyImport('_struct')), '\.so$')
+        self.assertRegexpMatches(self.ai.path(self.ai.proxyImport('bz2')), '\.so$')
 
     def test_nameTypeError(self):
         self.assertRaises(TypeError, self.ai.name, 42)
