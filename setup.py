@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os, sys
+import sys
 from setuptools import setup, find_packages
 
 
@@ -16,7 +16,8 @@ setup(name='pyeval',
       author_email='nejucomo@gmail.com',
       license='GPLv3',
       url='https://bitbucket.org/nejucomo/pyeval',
-      scripts=[os.path.join('bin', 'pyeval')],
       packages=find_packages(),
       package_data={'pyeval': ['doc/*.txt']},
-      )
+      entry_points={'console_scripts': [
+          'pyeval = pyeval.main:main',
+      ]})
