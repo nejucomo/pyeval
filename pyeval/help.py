@@ -22,7 +22,8 @@ class HelpBrowser (object):
             if topicfile.endswith('.txt'):
                 topicname = topicfile[:-4]
                 resource = os.path.join('doc', topicname + '.txt')
-                self._topics[topicname] = pkg_resources.resource_string(__name__, resource)
+                self._topics[topicname] = \
+                    pkg_resources.resource_string(__name__, resource).decode('utf-8')
 
         self._topics['variables'] = self._createVariablesTopic()
 
@@ -43,7 +44,7 @@ class HelpBrowser (object):
         return '%s\n%s\n\n%s\n' % (header, '=' * len(header), topictext)
 
     def renderTopic(self, topicname):
-        print self.getTopicText(topicname)
+        print(self.getTopicText(topicname))
 
     def render(self):
         args = self._scope['args']

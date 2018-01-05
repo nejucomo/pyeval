@@ -14,7 +14,7 @@ def dedent(text):
 
     dedentedlines = []
     for indented in indentedlines:
-        assert indented == '' or indented[:indent].strip() == '', `indented`
+        assert indented == '' or indented[:indent].strip() == '', repr(indented)
         dedentedlines.append(indented[indent:])
 
     return '\n'.join(dedentedlines) + '\n'

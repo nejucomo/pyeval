@@ -73,7 +73,7 @@ class AutoImporter (object):
             def __getattribute__(_, name):
                 try:
                     x = getattr(mod, name)
-                except AttributeError, outerError:
+                except AttributeError as outerError:
                     try:
                         x = ai.proxyImport(modinfo.name + '.' + name)
                     except ImportError:

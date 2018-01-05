@@ -3,7 +3,7 @@ __all__ = ['FakeIO']
 
 import re
 import sys
-from cStringIO import StringIO
+from six import StringIO
 
 
 
@@ -36,7 +36,10 @@ class FakeIO (object):
 
     def checkRegexp(self, testcase, expectedOut, expectedError):
         (output, error) = self.getOutputs()
-        testcase.assertRegexpMatches(output, expectedOut)
-        testcase.assertRegexpMatches(error, expectedError)
+        if expectedOut:
+            testcase.assertRegexpMatches(output, expectedOut)
+        if expectedError:
+            testcase.assertRegexpMatches(error, expectedError)
+
 
 

@@ -1,7 +1,7 @@
 __all__ = ['pyeval', 'pyevalAndDisplay', 'buildStandardMagicScope']
 
 
-import __builtin__
+from six.moves import builtins
 import sys
 
 from pyeval.autoimporter import AutoImporter
@@ -43,7 +43,7 @@ def buildStandardMagicScope(argStrs, autoimporter=None):
 
     def fallthrough(key):
         try:
-            return getattr(__builtin__, key)
+            return getattr(builtins, key)
         except AttributeError:
             return autoimporter.proxyImport(key)
 

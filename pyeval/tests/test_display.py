@@ -1,6 +1,6 @@
 import unittest
 import pprint
-from cStringIO import StringIO
+from six import StringIO
 
 from pyeval.display import displayPretty
 from pyeval.tests.fakeio import FakeIO

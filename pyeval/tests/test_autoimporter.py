@@ -38,8 +38,9 @@ class AutoImporterTests (unittest.TestCase):
     def test_path(self):
         def getsrc(m):
             path = m.__file__
-            assert path.endswith('.pyc')
-            return path[:-1]
+            if path.endswith('.pyc'):
+                return path[:-1]
+            return path
 
         self.assertEqual(getsrc(logging), self.ai.path(self.parent))
         self.assertEqual(getsrc(logging.handlers), self.ai.path(self.child))

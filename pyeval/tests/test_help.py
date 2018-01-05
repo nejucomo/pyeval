@@ -98,7 +98,7 @@ class DocExampleVerificationTests (unittest.TestCase):
                     else:
                         fio.checkRegexp(self, expectedRgx, '^$')
 
-                except Exception, e:
+                except Exception as e:
                     e.args += ('In topic %r' % (topicname,),
                                'In EXPR %r' % (expr,),
                                )

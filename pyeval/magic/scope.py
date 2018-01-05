@@ -43,7 +43,7 @@ class MagicScope (dict):
 
 
     def getMagicDocs(self):
-        return sorted( [ (k, doc) for (k, (f, doc)) in self._magic.iteritems() ] )
+        return sorted( [ (k, doc) for (k, (f, doc)) in self._magic.items() ] )
 
 
     # dict interface:
@@ -75,11 +75,11 @@ class MagicScope (dict):
     def iterkeys(self):
         visited = set()
 
-        for key in self._magic.iterkeys():
+        for key in self._magic:
             visited.add(key)
             yield key
 
-        for key in dict.iterkeys(self):
+        for key in self:
             if key not in visited:
                 yield key
 

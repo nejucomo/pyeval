@@ -21,7 +21,7 @@ class pyevalTests (unittest.TestCase):
         self.assertRaises(NameError, pyeval, 'a2', 'x', 'y')
 
     def test_autoimportSubmodule(self):
-        proxy = pyeval('cStringIO')
+        proxy = pyeval('email')
         self.assertIsInstance(proxy, AutoImporter.Proxy)
 
     def test_unboundRaisesNameError(self):

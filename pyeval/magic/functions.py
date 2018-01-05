@@ -5,6 +5,8 @@ __all__ = ['p', 'pp', 'sh']
 
 import pprint
 
+unicode = type(u'')
+
 
 def pp(_, *a, **kw):
     r"""
@@ -55,7 +57,7 @@ def p(scope, x):
     if type(x) is unicode:
         x = x.encode(scope['encoding'])
 
-    print x
+    print(x)
 
 
 def sh(scope, obj):
