@@ -41,7 +41,9 @@ STATUS=$?
 set -e
 
 echo -e '\n--- Generating Coverage Report ---'
-coverage html --include='pyeval/*'
+# This is a bit circular, thus brittle. We're using the test target pyeval:
+COVINC="$(pyeval 'sh(os.path.dirname(ai.path(pyeval)))')"
+coverage html --include="${COVINC}/*"
 
 echo 'Report generated.'
 
