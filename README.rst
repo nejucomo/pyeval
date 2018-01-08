@@ -1,6 +1,8 @@
 pyeval
 ======
 
+|Version| |Python| |License| |Tests| |Coverage|
+
 Evaluate python expressions conveniently from the shell:
 
 .. code-block:: bash
@@ -87,3 +89,26 @@ To get started, run:
 .. code-block:: bash
 
     $ pyeval help upgrading
+
+
+.. Badges:
+
+.. |Version| image::    https://img.shields.io/pypi/v/pyeval.svg
+   :target:             https://pypi.python.org/pypi/pyeval
+   :alt:                Version
+
+.. |Python| image::     https://img.shields.io/pypi/pyversions/pyeval.svg
+   :target:             https://pypi.python.org/pypi/pyeval#downloads
+   :alt:                Python Versions
+
+.. |License| image::    https://img.shields.io/pypi/l/pyeval.svg
+   :target:             https://github.com/nejucomo/pyeval/blob/master/COPYING
+   :alt:                License: MIT
+
+.. |Tests| image::      https://img.shields.io/travis/nejucomo/pyeval/master.svg
+   :target:             https://travis-ci.org/nejucomo/pyeval
+   :alt:                Build Status
+
+.. |Coverage| image::   https://coveralls.io/repos/nejucomo/pyeval/badge.svg?branch=master
+   :target:             https://coveralls.io/r/nejucomo/pyeval
+   :alt:                Coverage
