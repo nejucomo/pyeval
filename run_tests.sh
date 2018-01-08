@@ -1,8 +1,5 @@
 #!/bin/bash
 
-PYTHONPATH=".:./lib:$PYTHONPATH"
-
-
 echo '=== pyflakes ==='
 pyflakes ./lib/pyeval || exit $?
 echo 'pyflakes completed.'
