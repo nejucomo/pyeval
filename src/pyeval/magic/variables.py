@@ -21,7 +21,13 @@ def scope(scope):
 
 
 def encoding(scope):
-    r"""The detected encoding used by the display functions."""
+    r"""
+    The detected encoding.
+
+    In Python 3, print() handles encoding automatically. This variable
+    provides the detected encoding for informational use. Detection order:
+    sys.stdout.encoding, LC_CTYPE env var suffix, or UTF-8.
+    """
     return getEncoding()
 
 
