@@ -1,7 +1,7 @@
 __all__ = ['pyeval', 'pyevalAndDisplay', 'buildStandardMagicScope']
 
 
-import __builtin__
+import builtins
 import sys
 
 from pyeval.autoimporter import AutoImporter
@@ -11,19 +11,18 @@ from pyeval.magic import variables, functions
 from pyeval.monkeypatch import patch
 
 
-
 def pyevalAndDisplay(expr, *args, **kw):
     """
     Evaluate expr and args, then display the result with sys.displayhook.
 
     If the displayhook keyword is given and None, sys.displayhook is not
     modified.  Otherwise it is temporarily assigned to sys.displayhook
-    and restored before returning.  It not given, it defaults to
+    and restored before returning.  If not given, it defaults to
     pyeval.display.displayPretty.
     """
     displayhook = kw.pop('displayhook', displayPretty)
     if len(kw) > 0:
-        raise TypeError('pyevalAndDisplay() got unexpected keywords: %r' % (kw.keys(),))
+        raise TypeError('pyevalAndDisplay() got unexpected keywords: %r' % (list(kw.keys()),))
 
     if displayhook is None:
         displayhook = sys.displayhook
@@ -43,7 +42,7 @@ def buildStandardMagicScope(argStrs, autoimporter=None):
 
     def fallthrough(key):
         try:
-            return getattr(__builtin__, key)
+            return getattr(builtins, key)
         except AttributeError:
             return autoimporter.proxyImport(key)
 
@@ -72,5 +71,3 @@ def buildStandardMagicScope(argStrs, autoimporter=None):
         scope.registerMagicFunction(getattr(functions, name))
 
     return scope
-
-

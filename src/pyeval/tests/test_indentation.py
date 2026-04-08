@@ -3,8 +3,7 @@ import unittest
 from pyeval.indentation import dedent, indent
 
 
-
-class indentationTests (unittest.TestCase):
+class indentationTests(unittest.TestCase):
 
     def test_dedentAndIndent(self):
         x = """

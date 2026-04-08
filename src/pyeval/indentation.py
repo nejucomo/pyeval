@@ -14,7 +14,7 @@ def dedent(text):
 
     dedentedlines = []
     for indented in indentedlines:
-        assert indented == '' or indented[:indent].strip() == '', `indented`
+        assert indented == '' or indented[:indent].strip() == '', repr(indented)
         dedentedlines.append(indented[indent:])
 
     return '\n'.join(dedentedlines) + '\n'
@@ -22,6 +22,6 @@ def dedent(text):
 
 def indent(text, amount=2):
     """Indent text by amount spaces."""
-    indent = ' ' * amount
-    separator = '\n' + indent
-    return indent + separator.join(text.rstrip().split('\n')) + '\n'
+    ind = ' ' * amount
+    separator = '\n' + ind
+    return ind + separator.join(text.rstrip().split('\n')) + '\n'

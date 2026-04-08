@@ -21,19 +21,17 @@ def pp(_, *a, **kw):
 
 def p(scope, x):
     r"""
-    A wrapper around the print statement.  Use this if you want
-    to avoid pretty printed results:
+    A wrapper around print().  Use this if you want to avoid pretty
+    printed results:
 
       $ pyeval 'p({}.get("nothing"))'
       None
 
-      $ pyeval 'range(123)'
-      [0,
-       1,
-       ...
+      $ pyeval 'list(range(5))'
+      [0, 1, 2, 3, 4]
 
-      $ pyeval 'p(range(123))'
-      [0, 1, ...
+      $ pyeval 'p(list(range(5)))'
+      [0, 1, 2, 3, 4]
 
     Also, it allows you to print strings directly:
 
@@ -41,7 +39,7 @@ def p(scope, x):
       x	y
       z
 
-    Note, it's possible to display unicode this way, using the detected encoding:
+    Note, it's possible to display unicode this way:
 
       $ pyeval 'p(u"\u2606")'
       ☆
@@ -51,11 +49,7 @@ def p(scope, x):
       $ pyeval help encoding
       ...
     """
-
-    if type(x) is unicode:
-        x = x.encode(scope['encoding'])
-
-    print x
+    print(x)
 
 
 def sh(scope, obj):
@@ -68,7 +62,7 @@ def sh(scope, obj):
 
     For each item in the iterable:
 
-    3. Convert the item to unicode as: unicode(item)
+    3. Convert the item to a string as: str(item)
 
     4. Print the result with p().
 
@@ -92,11 +86,11 @@ def sh(scope, obj):
         return
 
     it = [obj]
-    if type(obj) not in (str, unicode):
+    if not isinstance(obj, str):
         try:
             it = iter(obj)
         except TypeError:
             pass
 
     for elem in it:
-        p(unicode(elem))
+        p(str(elem))

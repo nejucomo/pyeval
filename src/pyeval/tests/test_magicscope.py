@@ -3,8 +3,7 @@ import unittest
 from pyeval.magic.scope import MagicScope
 
 
-
-class MagicScopeTests (unittest.TestCase):
+class MagicScopeTests(unittest.TestCase):
     def setUp(self):
         self.caught = []
         self.scope = MagicScope(self.caught.append)
@@ -62,7 +61,7 @@ class MagicScopeTests (unittest.TestCase):
             self.assertIsInstance(v, str)
 
 
-class MagicScopeDictInterfaceTests (unittest.TestCase):
+class MagicScopeDictInterfaceTests(unittest.TestCase):
     def setUp(self):
 
         def failIfCalled(key):
@@ -80,12 +79,12 @@ class MagicScopeDictInterfaceTests (unittest.TestCase):
     def test___repr__(self):
         # The repr should *not* delegate to dict, because some magic
         # values trigger IO:
-        self.assertRegexpMatches(repr(self.scope), r'<MagicScope \[.*\]>$')
+        self.assertRegex(repr(self.scope), r'<MagicScope \[.*\]>$')
 
     def _testInvariantEquality(self, expected, f, *args):
         self.assertEqual(expected, f(*args))
 
-        self.scope['y'] # Resolve the magic variable.
+        self.scope['y']  # Resolve the magic variable.
 
         # Repeat the invariant:
         self.assertEqual(expected, f(*args))
@@ -94,20 +93,10 @@ class MagicScopeDictInterfaceTests (unittest.TestCase):
         self._testInvariantEquality(2, len, self.scope)
 
     def test_keys(self):
-        self._testInvariantEquality(['x', 'y'], lambda : sorted(self.scope.keys()))
+        self._testInvariantEquality(['x', 'y'], lambda: sorted(self.scope.keys()))
 
     def test_values(self):
-        self._testInvariantEquality([0, 1], lambda : sorted(self.scope.values()))
+        self._testInvariantEquality([0, 1], lambda: sorted(self.scope.values()))
 
     def test_items(self):
-        self._testInvariantEquality([('x', 0), ('y', 1)], lambda : sorted(self.scope.items()))
-
-    def test_iterkeys(self):
-        self._testInvariantEquality(['x', 'y'], lambda : sorted(self.scope.iterkeys()))
-
-    def test_itervalues(self):
-        self._testInvariantEquality([0, 1], lambda : sorted(self.scope.itervalues()))
-
-    def test_iteritems(self):
-        self._testInvariantEquality([('x', 0), ('y', 1)], lambda : sorted(self.scope.iteritems()))
-
+        self._testInvariantEquality([('x', 0), ('y', 1)], lambda: sorted(self.scope.items()))

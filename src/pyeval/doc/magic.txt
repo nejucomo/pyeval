@@ -5,7 +5,7 @@ of dict.  A MagicScope has two special properties:
 * unbound references are passed through to a "fallthrough" handler.
 
 The standard fallthrough handler attempts to find the reference in
-__builtin__, or if it is not there, it delegates to an AutoImporter
+builtins, or if it is not there, it delegates to an AutoImporter
 instance.  For more detail about the AutoImporter mechanism, run:
 
     $ pyeval help AutoImporter

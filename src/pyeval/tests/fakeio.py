@@ -3,13 +3,12 @@ __all__ = ['FakeIO']
 
 import re
 import sys
-from cStringIO import StringIO
+from io import StringIO
 
 
-
-class FakeIO (object):
-    def __init__(self, inbytes=''):
-        self._inbytes = inbytes
+class FakeIO(object):
+    def __init__(self, intext=''):
+        self._intext = intext
 
     def __enter__(self):
         self._realout = sys.stdout
@@ -18,7 +17,7 @@ class FakeIO (object):
 
         self.fakeout = sys.stdout = StringIO()
         self.fakeerr = sys.stderr = StringIO()
-        self.fakein = sys.stdin = StringIO(self._inbytes)
+        self.fakein = sys.stdin = StringIO(self._intext)
 
         return self
 
@@ -36,7 +35,11 @@ class FakeIO (object):
 
     def checkRegexp(self, testcase, expectedOut, expectedError):
         (output, error) = self.getOutputs()
-        testcase.assertRegexpMatches(output, expectedOut)
-        testcase.assertRegexpMatches(error, expectedError)
-
-
+        if isinstance(expectedOut, str) and not expectedOut:
+            testcase.assertEqual('', output)
+        else:
+            testcase.assertRegex(output, expectedOut)
+        if isinstance(expectedError, str) and not expectedError:
+            testcase.assertEqual('', error)
+        else:
+            testcase.assertRegex(error, expectedError)

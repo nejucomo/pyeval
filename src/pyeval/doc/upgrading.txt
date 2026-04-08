@@ -46,9 +46,9 @@ is not defined in the math module:
     $ pyeval 'type(math._ai_mod)'
     Traceback (most recent call last):
       ...
-    AttributeError: 'module' object has no attribute '_ai_mod'
+    AttributeError: ...
 
 Now to access the proxied module, call 'ai.mod':
 
     $ pyeval 'type(ai.mod(math))'
-    <type 'module'>
+    <class 'module'>

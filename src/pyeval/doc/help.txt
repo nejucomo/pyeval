@@ -11,17 +11,16 @@ argument.  For example:
 To examine source docstrings any object, such as a class, pass it to help
 as a function:
 
-    $ pyeval 'help(BaseHTTPServer.HTTPServer)'
+    $ pyeval 'help(http.server.HTTPServer)'
     ...
 
 There is a special case for AutoImporter module proxies, so that the
 original module is passed on to the pydoc help system:
 
-    $ pyeval 'help(BaseHTTPServer)'
+    $ pyeval 'help(http.server)'
     ...
 
 To use the interactive help system of pydoc, call it directly:
 
     $ pyeval 'pydoc.help()'
     ...
-

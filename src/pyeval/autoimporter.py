@@ -5,13 +5,12 @@ from types import ModuleType
 from weakref import WeakKeyDictionary
 
 
+class AutoImporter(object):
 
-class AutoImporter (object):
+    class Proxy(object):
+        pass  # BaseClass exposed so client code can use isinstance(x, AutoImporter.Proxy)
 
-    class Proxy (object):
-        pass # BaseClass exposed so client code can use isinstance(x, AutoImport.Proxy)
-
-    class ModInfo (object):
+    class ModInfo(object):
         def __init__(self, mod):
             self.mod = mod
 
@@ -21,26 +20,15 @@ class AutoImporter (object):
 
         @property
         def path(self):
-            try:
-                path = self.mod.__file__
-            except AttributeError:
-                return None
-            else:
-                if path.endswith('.pyc'):
-                    path = path[:-1]
-
-                return path
-
+            return getattr(self.mod, '__file__', None)
 
     def __init__(self):
         self._proxyInfo = WeakKeyDictionary()
 
     def proxyImport(self, name):
-
         mod = __import__(name)
-        for name in name.split('.')[1:]:
-            mod = getattr(mod, name)
-
+        for part in name.split('.')[1:]:
+            mod = getattr(mod, part)
         return self._proxyWrap(mod)
 
     def mod(self, proxy):
@@ -64,7 +52,7 @@ class AutoImporter (object):
         ai = self
         modinfo = ai.ModInfo(mod)
 
-        class BoundProxy (ai.Proxy):
+        class BoundProxy(ai.Proxy):
             def __repr__(_):
                 modrepr = repr(mod)
                 assert modrepr.startswith('<') and modrepr.endswith('>'), modrepr
@@ -73,7 +61,7 @@ class AutoImporter (object):
             def __getattribute__(_, name):
                 try:
                     x = getattr(mod, name)
-                except AttributeError, outerError:
+                except AttributeError as outerError:
                     try:
                         x = ai.proxyImport(modinfo.name + '.' + name)
                     except ImportError:

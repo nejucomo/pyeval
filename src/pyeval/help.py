@@ -4,11 +4,11 @@ __all__ = [
 
 
 import os
-import pkg_resources
+import importlib.resources
 from pyeval.indentation import dedent, indent
 
 
-class HelpBrowser (object):
+class HelpBrowser(object):
 
     def __init__(self, scope, delegate=help):
         """The constructor allows dependency injection for unittests."""
@@ -18,11 +18,12 @@ class HelpBrowser (object):
         self._delegate = delegate
         self._topics = {}
 
-        for topicfile in pkg_resources.resource_listdir(__name__, 'doc'):
-            if topicfile.endswith('.txt'):
-                topicname = topicfile[:-4]
-                resource = os.path.join('doc', topicname + '.txt')
-                self._topics[topicname] = pkg_resources.resource_string(__name__, resource)
+        pkg_ref = importlib.resources.files(__name__).joinpath('doc')
+        for resource in pkg_ref.iterdir():
+            name = resource.name
+            if name.endswith('.txt'):
+                topicname = name[:-4]
+                self._topics[topicname] = resource.read_text(encoding='utf-8')
 
         self._topics['variables'] = self._createVariablesTopic()
 
@@ -43,7 +44,7 @@ class HelpBrowser (object):
         return '%s\n%s\n\n%s\n' % (header, '=' * len(header), topictext)
 
     def renderTopic(self, topicname):
-        print self.getTopicText(topicname)
+        print(self.getTopicText(topicname))
 
     def render(self):
         args = self._scope['args']
@@ -52,11 +53,12 @@ class HelpBrowser (object):
         try:
             [topicname] = args
         except ValueError:
-            raise SystemExit('Too many args for help.') # FIXME
+            raise SystemExit('Too many args for help.')  # FIXME
 
         self.renderTopic(topicname)
 
     _NoArgSentinel = object()
+
     def __call__(self, obj=_NoArgSentinel):
         if obj is self._NoArgSentinel:
             self.renderTopic('help')

@@ -4,7 +4,7 @@ from pyeval.main import main
 from pyeval.tests.fakeio import FakeIO
 
 
-class pyevalTests (unittest.TestCase):
+class pyevalTests(unittest.TestCase):
 
     def test_fortytwo(self):
         fio = FakeIO()
@@ -33,5 +33,4 @@ class pyevalTests (unittest.TestCase):
         with fio:
             main(['scope'])
 
-        fio.checkRegexp(self, '^<MagicScope \[.*\]>$', '^$')
-
+        fio.checkRegexp(self, '^<MagicScope \\[.*\\]>$', '^$')

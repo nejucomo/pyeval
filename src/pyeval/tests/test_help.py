@@ -10,8 +10,7 @@ from pyeval.main import main
 from pyeval.tests.fakeio import FakeIO
 
 
-
-class HelpBrowserTests (unittest.TestCase):
+class HelpBrowserTests(unittest.TestCase):
     def setUp(self):
         self.delegateCalls = []
         self.help = HelpBrowser(buildStandardMagicScope([]), self.delegateCalls.append)
@@ -23,14 +22,12 @@ class HelpBrowserTests (unittest.TestCase):
         self.assertEqual([sys], self.delegateCalls)
 
 
-
-class DocExampleVerificationTests (unittest.TestCase):
+class DocExampleVerificationTests(unittest.TestCase):
 
     IndentRgx = re.compile(r'^    .*?$', re.MULTILINE)
     InvocationRgx = re.compile(r"^    \$")
     PyevalInvocationRgx = re.compile(
         r"^    \$ (echo (?P<EFLAG>-e )?'(?P<INPUT>.*?)' \| )?pyeval (?P<EXPR>('.*?'|\S+)) ?(?P<ARGS>.*?)$")
-
 
     def _parseEntries(self, text):
         entry = None
@@ -55,13 +52,11 @@ class DocExampleVerificationTests (unittest.TestCase):
                         expr = expr[1:-1]
                     entry = (expr, args, teststdin, [])
                 else:
-                    # This is an non-tested example, such as a non-call to pyeval.
-                    #print 'DEBUG: Skipping non-pyeval shell example: %r' % (match,)
+                    # This is a non-tested example, such as a non-call to pyeval.
                     entry = (None, None, None, [])
 
         if entry is not None and entry[0] is not None:
             yield entry
-
 
     def test_docs(self):
 
@@ -69,7 +64,7 @@ class DocExampleVerificationTests (unittest.TestCase):
 
         count = 0
 
-        topics = [ (topic, hb.getTopicText(topic)) for topic in hb.getTopics() ]
+        topics = [(topic, hb.getTopicText(topic)) for topic in hb.getTopics()]
 
         for (topicname, helptext) in topics:
             for (expr, args, inputText, outlines) in self._parseEntries(helptext):
@@ -98,7 +93,7 @@ class DocExampleVerificationTests (unittest.TestCase):
                     else:
                         fio.checkRegexp(self, expectedRgx, '^$')
 
-                except Exception, e:
+                except Exception as e:
                     e.args += ('In topic %r' % (topicname,),
                                'In EXPR %r' % (expr,),
                                )

@@ -21,7 +21,7 @@ def scope(scope):
 
 
 def encoding(scope):
-    r"""The detected encoding used by p() and other magic functions."""
+    r"""The detected encoding used by the display functions."""
     return getEncoding()
 
 
@@ -75,7 +75,7 @@ def lines(scope):
     The list of stripped standard input lines.  Defined as:
     '[ l.strip() for l in scope['rlines'] ]'
     """
-    return [ l.strip() for l in scope['rlines'] ]
+    return [l.strip() for l in scope['rlines']]
 
 
 def ilines(_):
@@ -83,4 +83,4 @@ def ilines(_):
     A line iterator over stripped lines from stdin.  Defined as:
     '( l.strip() for l in sys.stdin )'
     """
-    return ( l.strip() for l in sys.stdin )
+    return (l.strip() for l in sys.stdin)

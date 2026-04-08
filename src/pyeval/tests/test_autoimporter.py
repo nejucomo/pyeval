@@ -7,8 +7,7 @@ from logging import handlers
 from pyeval.autoimporter import AutoImporter
 
 
-
-class AutoImporterTests (unittest.TestCase):
+class AutoImporterTests(unittest.TestCase):
     def setUp(self):
         self.ai = AutoImporter()
         self.parent = self.ai.proxyImport('logging')
@@ -36,19 +35,30 @@ class AutoImporterTests (unittest.TestCase):
         self.assertEqual('logging.handlers', self.ai.name(self.child))
 
     def test_path(self):
-        def getsrc(m):
-            path = m.__file__
-            assert path.endswith('.pyc')
-            return path[:-1]
-
-        self.assertEqual(getsrc(logging), self.ai.path(self.parent))
-        self.assertEqual(getsrc(logging.handlers), self.ai.path(self.child))
+        for (proxy, mod) in [(self.parent, logging), (self.child, handlers)]:
+            path = self.ai.path(proxy)
+            self.assertIsNotNone(path)
+            self.assertTrue(path.endswith('.py'), 'Expected .py path, got: %r' % path)
+            self.assertEqual(mod.__file__, path)
 
     def test_pathNone(self):
         self.assertIsNone(self.ai.path(self.ai.proxyImport('sys')))
 
     def test_pathDotSO(self):
-        self.assertRegexpMatches(self.ai.path(self.ai.proxyImport('_struct')), '\.so$')
+        # Find a C extension module with a .so file
+        so_module = None
+        for candidate in ['netifaces', '_cffi_backend', 'apt_inst', '_datetime']:
+            try:
+                mod = __import__(candidate)
+                path = getattr(mod, '__file__', None)
+                if path and path.endswith('.so'):
+                    so_module = candidate
+                    break
+            except ImportError:
+                pass
+        if so_module is None:
+            self.skipTest('No .so extension module available in this environment')
+        self.assertRegex(self.ai.path(self.ai.proxyImport(so_module)), r'\.so$')
 
     def test_nameTypeError(self):
         self.assertRaises(TypeError, self.ai.name, 42)
@@ -78,5 +88,3 @@ class AutoImporterTests (unittest.TestCase):
                 self.assertRaises(AttributeError, getattr, proxy, 'WOMBATS!')
             except ImportError:
                 self.fail('A missing attribute on an AutoImporter resulted in an ImportError.')
-
-

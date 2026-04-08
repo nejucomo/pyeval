@@ -9,8 +9,7 @@ from pyeval.eval import pyeval, pyevalAndDisplay, buildStandardMagicScope
 from pyeval.tests.fakeio import FakeIO
 
 
-
-class pyevalTests (unittest.TestCase):
+class pyevalTests(unittest.TestCase):
     def test_autoimportTopLevel(self):
         self.assertIs(math, pyeval('ai.mod(math)'))
 
@@ -21,14 +20,14 @@ class pyevalTests (unittest.TestCase):
         self.assertRaises(NameError, pyeval, 'a2', 'x', 'y')
 
     def test_autoimportSubmodule(self):
-        proxy = pyeval('cStringIO')
+        proxy = pyeval('logging.handlers')
         self.assertIsInstance(proxy, AutoImporter.Proxy)
 
     def test_unboundRaisesNameError(self):
         self.assertRaises(NameError, pyeval, 'BLORK_IS_NOT_BOUND')
 
 
-class pyevalAndDisplayTests (unittest.TestCase):
+class pyevalAndDisplayTests(unittest.TestCase):
 
     def _test_pead(self, expected, args):
         displays = []
@@ -59,11 +58,11 @@ class pyevalAndDisplayTests (unittest.TestCase):
         self.assertRaises(TypeError, pyevalAndDisplay, '42', wombat='monkey')
 
 
-class StandardMagicScopeTests (unittest.TestCase):
+class StandardMagicScopeTests(unittest.TestCase):
     def setUp(self):
         self.imports = []
 
-        class FakeAutoImporter (object):
+        class FakeAutoImporter(object):
             def proxyImport(_, name):
                 self.imports.append(name)
 
@@ -73,7 +72,7 @@ class StandardMagicScopeTests (unittest.TestCase):
         self.scope = buildStandardMagicScope(self.args, self.fakeai)
 
     def test_conciseBindings(self):
-        # The standard MagicScope delegates to __builtin__ in its
+        # The standard MagicScope delegates to builtins in its
         # fallthrough, rather than dumping all builtins into the dict.
         # This keeps the output short and relevant of:
         # $ pyeval 'dir()'
@@ -84,7 +83,7 @@ class StandardMagicScopeTests (unittest.TestCase):
         rawin = 'foo\nbar\n\n'
         stripin = rawin.strip()
         rlines = rawin.split('\n')
-        lines = [ l.strip() for l in rlines ]
+        lines = [l.strip() for l in rlines]
 
         with FakeIO(rawin):
             for i in range(2):
@@ -134,8 +133,8 @@ class StandardMagicScopeTests (unittest.TestCase):
         test_output('foo', 'foo\n')
         test_output(42, '42\n')
         test_output(['foo', 42], 'foo\n42\n')
-        test_output( ( x for x in ['foo', 42] ), 'foo\n42\n')
-        test_output( {'x': 'xylophone', 'y': 'yam'}, 'y\nx\n')
+        test_output((x for x in ['foo', 42]), 'foo\n42\n')
+        test_output({'x': 'xylophone', 'y': 'yam'}, 'x\ny\n')
 
     def test_magicFunctionNamesMatchBinding(self):
         for (name, _) in self.scope.getMagicDocs():
