@@ -13,8 +13,22 @@ requires-python = ">=3.8"
 [project.scripts]
 pyeval = "pyeval.main:main"
 
+[project.optional-dependencies]
+test = ["pytest", "pytest-cov"]
+
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.setuptools.package-data]
 pyeval = ["doc/*.txt"]
+
+[tool.pytest.ini_options]
+addopts = "--tb=short"
+testpaths = ["src/pyeval/tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["pyeval"]
+
+[tool.coverage.report]
+show_missing = true
