@@ -1,0 +1,13 @@
+In Python 3, text encoding is handled transparently by the standard
+library.  The 'p()' magic function uses Python's built-in print(),
+which respects sys.stdout.encoding automatically.
+
+The 'encoding' magic variable still provides access to the detected
+encoding, selected in this order:
+
+1. sys.stdout.encoding
+2. The substring of the LC_CTYPE environment variable after the rightmost '.'
+3. UTF-8
+
+Several display functions, such as sh() and p(), rely on Python's
+standard print() which handles unicode natively.

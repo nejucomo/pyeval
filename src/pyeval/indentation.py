@@ -1,0 +1,27 @@
+__all__ = ['dedent', 'indent']
+
+
+def dedent(text):
+    """Remove indentation from text as measured by the first non-empty line."""
+    indentedlines = text.rstrip().split('\n')
+
+    while indentedlines[0] == '':
+        indentedlines.pop(0)
+
+    firstline = indentedlines[0]
+
+    indent = len(firstline) - len(firstline.lstrip())
+
+    dedentedlines = []
+    for indented in indentedlines:
+        assert indented == '' or indented[:indent].strip() == '', repr(indented)
+        dedentedlines.append(indented[indent:])
+
+    return '\n'.join(dedentedlines) + '\n'
+
+
+def indent(text, amount=2):
+    """Indent text by amount spaces."""
+    ind = ' ' * amount
+    separator = '\n' + ind
+    return ind + separator.join(text.rstrip().split('\n')) + '\n'
